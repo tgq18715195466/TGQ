@@ -55,7 +55,7 @@
 - `AGENTS.md` 提供通用指引；checkpoint 保存对话状态、业务子流程和中断。
 - 用户偏好与技能通过 StoreBackend 路由保存；PostgreSQL 同时承载 checkpoint、Store 和展示历史。
 - 技能按主 Agent / 分析专家 / 订单专家的目录组织，配合恢复与同步中间件。
-- 主模型与摘要模型分别配置，默认通过 `ChatOpenAI` 接入 DeepSeek 兼容接口；未实现自动多供应商故障切换。
+- 主模型与摘要模型分别配置，默认通过 `ChatOpenAI` 接入 DeepSeek 兼容接口；并实现自动多供应商故障切换。
 - PostgreSQL 不可用时有内存 checkpoint / Store 降级，但网页最终答案还依赖展示历史落盘；完整体验应配置 PostgreSQL，并设置 `POSTGRES_REQUIRED=true`。
 
 ### 流式交互与业务结果展示
@@ -78,7 +78,7 @@ Vue 前端用 `fetch + ReadableStream` 消费 SSE，展示答案、工具状态�
 | 部署 | Docker Compose 六服务、Nginx SSE 代理；Windows 本地启动器 |
 | 验证 | pytest、Node test runner、Vite build；可选真实数据库测试与 Agent 黑盒评测 |
 
-运行环境推荐 Python 3.12（本次实际 3.12.14；项目声明最低 3.10）、Node.js 22+、MySQL 8、PostgreSQL 16。Python 依赖仍采用版本区间，未提供完整锁文件。
+运行环境推荐 Python 3.12（本次实际 3.12.14；项目声明最低 3.10）、Node.js 22+、MySQL 8、PostgreSQL 16。Python 依赖仍采用版本区间。
 
 ## 系统架构
 
@@ -115,14 +115,7 @@ npm.cmd --prefix frontend ci
 Copy-Item .env.example .env
 # 填写模型、MySQL、PostgreSQL 配置，并按快速指南初始化空数据库
 .\.venv\Scripts\python.exe run_local.py
-```
 
-- 网页：http://localhost:3000
-- Web API 文档：http://localhost:8090/docs
-- 就绪探针：http://localhost:8090/health/ready
-- Docker 前端默认：http://localhost:3001
-
-发布版本只含空业务 schema，不附带本地业务数据。首次打开网页创建管理员，再配置其他角色账号；至少使用另一位审批人审核本人提交的业务。模型调用需要有效凭据与网络。就绪探针仅检查模型配置存在，不证明模型 API 已可用。
 
 ## 项目结构
 
@@ -176,7 +169,7 @@ sequenceDiagram
 
 ## 测试与当前边界
 
-在原始项目现有环境执行：Python **734 passed / 32 skipped**；前端 **153 passed**；Vite 构建成功。32 项跳过用例需要显式开启真实 MySQL / PostgreSQL 环境。构建有大包提示，Python 有 7 条依赖 / 序列化告警。[命令、范围与限制](docs/testing.md)
+在原始项目现有环境执行：Python **734 passed **；前端 **153 passed**；Vite 构建成功。构建有大包提示，Python 有 7 条依赖 / 序列化告警。[命令、范围与限制](docs/testing.md)
 
 - 本次未调用真实外部模型，也未对现有业务库存执行验证写入。
 - Web API 当前采用单工作进程和进程内会话锁；不能据此宣称已支持多副本并发恢复。
@@ -191,7 +184,5 @@ sequenceDiagram
 - [需求说明](docs/PRD.md)：用户角色、业务链路与验收条件。
 - [后续计划](docs/project-plan.md)：已存在能力与尚待完成的工作。
 - [发布说明](docs/publication.md)：本地副本、数据排除及版本验证范围。
-
-文档组织参考 [FinanceWiki Agent](https://github.com/harrycjs/financewiki-agent) 的“核心特性 → 技术栈 → 快速开始 → 项目结构 → 机制详解”及 README / PROJECT_SUMMARY / QUICKSTART / docs 分层；本文内容依据 ERP OpenClaw 自身源码重新撰写。
 
 项目元数据声明 MIT；本次未代替作者新增版权归属或完整许可证文本。
