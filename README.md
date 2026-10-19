@@ -1,8 +1,7 @@
 # ERP OpenClaw · 风驰采购与仓储智能助手
 
 > 面向摩托车零配件业务的 ERP Agent 应用：以 Vue 3 工作台连接 FastAPI、LangGraph / DeepAgents 与 MCP，把查询分析、采购申请、订单、审批、收货和库存流水连接为可追踪的业务流程。
-
-**源码解析日期：2026-10-19。** 本仓库同时提供业务源码、部署配置、测试与中文解析；功能描述以当前源码为依据。
+本仓库同时提供业务源码、部署配置、测试与中文解析；功能描述以当前源码为依据。
 
 [快速开始](QUICKSTART.md) · [项目总结](PROJECT_SUMMARY.md) · [架构详解](docs/architecture.md) · [业务需求与边界](docs/PRD.md) · [测试与验证](docs/testing.md) · [后续计划](docs/project-plan.md)
 
