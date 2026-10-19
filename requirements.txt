@@ -1,0 +1,35 @@
+# ERP_OPENCLAW clean dependencies (replaces the old UTF-16 freeze)
+# Install: <conda python> -m pip install -r requirements.txt
+
+# ---- Agent orchestration core ----
+deepagents>=0.4.12
+langgraph>=1.0.0
+langgraph-checkpoint-postgres>=3.0.0
+langchain>=1.0.0
+langchain-core>=1.0.0
+
+# ---- Model access (DeepSeek via OpenAI-compatible API) ----
+langchain-openai>=1.0.0
+
+# ---- MCP protocol ----
+langchain-mcp-adapters>=0.2.0
+fastmcp>=3.0.0,<4.0
+mcp>=1.0.0,<2.0
+
+# ---- Web API backend ----
+fastapi>=0.115
+uvicorn[standard]>=0.30
+httpx>=0.27
+
+# ---- Data and config ----
+psycopg[binary]>=3.2
+psycopg-pool>=3.2
+python-dotenv>=1.0
+pydantic>=2.0
+
+# ---- Minimal ERP backend (replaces missing Java backend, local MySQL) ----
+pymysql>=1.1
+cryptography>=42.0
+
+# ---- Remote sandbox client (optional; not needed for local filesystem backend) ----
+# opensandbox

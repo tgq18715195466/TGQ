@@ -1,0 +1,38 @@
+# Private configuration; keep only reviewed examples
+.env
+.env.*
+!.env.example
+!.env.docker.example
+!.env.eval.example
+*.pem
+*.key
+# Business data and runtime user content
+motorparts_db.sql
+*.dump
+*.db
+*.sqlite*
+src/local_sandbox/
+src/download/
+evals/reports/
+# Dependencies/build/test/runtime artifacts
+.venv/
+venv/
+node_modules/
+dist/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.vite/
+.ruff_cache/
+.mypy_cache/
+tmp/
+temp/
+*.log
+# Local editor/agent state
+.agents/
+.codex/
+.claude/
+.idea/
+.vscode/
+.DS_Store

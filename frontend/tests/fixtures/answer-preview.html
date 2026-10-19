@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>回答展示回归样例</title>
+<style>
+  body { margin: 0; background: #f6f8f3; color: #24373c; font-family: system-ui, sans-serif; }
+  main { max-width: 1040px; margin: 24px auto; }
+  header { margin: 0 24px 20px; font-size: 13px; color: #617c72; }
+  button { margin: 8px 8px 0 0; padding: 8px 12px; border: 1px solid #b4d6c7; border-radius: 6px; background: white; cursor: pointer; }
+</style>
+<main>
+  <header>回答展示回归样例 · 固定样例数据，使用实际消息组件
+    <nav id="scenarios"></nav>
+  </header>
+  <div id="app"></div>
+</main>
+<script type="module">
+  import { createApp, h, ref } from 'vue'
+  import MessageItem from '/src/components/MessageItem.vue'
+  const report = `已核验 **20 条**低库存物料，其中 **14 条可采购**，6 条因供应商暂停或终止合作被排除。
+
+### 优先采购清单（节选四项）
+
+| 物料编号 | 名称 | 当前库存 | 安全库存 | 缺口 | 供应商 |
+| --- | --- | ---: | ---: | ---: | --- |
+| FC3006 | 侧支架 | 3 | 27 | 24 | 采埃孚汽车系统（上海）有限公司 |
+| PC2007 | 机油泵 | 6 | 29 | 23 | 豹牌刹车片有限公司 |
+| BC5002 | 后刹车片 | 2 | 24 | 22 | 博世汽车配件（上海）有限公司 |
+| FC3004 | 方向柱 | 3 | 20 | 17 | 米其林（中国）投资有限公司 |
+
+建议先处理以上四项。供应商非合作中的物料，应先完成准入评估或寻找替代供应商。`
+  const facts = Array.from({length:39}, (_,i)=>({result_id:`r${i}`,title:'供应商查询',kind:'supplier',records:[{name:`原始供应商查询 ${i+1}`}],columns:[{key:'name',label:'供应商名称'}],returned_count:1,total:1,complete:true,execution:{outcome:'success',message:'查询成功'}}))
+  const failure = '当前账号无执行权限，请联系审批人执行。'
+  const scenarios = {
+    '查询报告': {id:'query',role:'assistant',content:report,business_results:facts},
+    '权限提示': {id:'denied',role:'assistant',content:failure,wasStreamed:true,business_results:[{result_id:'denied',kind:'master_change',title:'供应商变更',records:[],columns:[],execution:{outcome:'failure',message:failure}}]},
+    '普通文字': {id:'text',role:'assistant',content:'请补充采购数量，以便继续办理。'},
+  }
+  const selected = ref('查询报告')
+  createApp({render:()=>Object.keys(scenarios).map(name=>h('button',{onClick:()=>selected.value=name},name))}).mount('#scenarios')
+  createApp({render:()=>h(MessageItem,{message:scenarios[selected.value]})}).mount('#app')
+</script>
+</html>

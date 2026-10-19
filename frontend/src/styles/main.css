@@ -1,0 +1,185 @@
+/**
+ * 全局样式文件
+ *
+ * 定义现代化科技风格的样式 - 参考大厂设计
+ */
+
+/* ============================================================
+   CSS 变量定义 - 浅色主题配色方案
+   ============================================================ */
+:root {
+  /* 颜色变量 - 参考 ChatGPT/DeepSeek 风格 */
+  --color-primary: #238575;
+  --color-primary-hover: #1b7062;
+  --color-secondary: #356b60;
+  --color-accent: #ac8b52;
+  --color-bg: #f7f8f4;
+  --color-bg-secondary: #f7f8f4;
+  --color-bg-tertiary: #eef2eb;
+  --color-bg-hover: #e7ebe7;
+  --color-white: #ffffff;
+  --color-border: #e7ebe7;
+  --color-border-light: #eef2eb;
+  --color-text: #24373c;
+  --color-text-secondary: #697e79;
+  --color-text-muted: #82908f;
+
+  /* 阴影 - 柔和效果 */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.05);
+  --shadow-glow: 0 0 20px rgba(35, 133, 117, 0.15);
+
+  /* 圆角 - 柔和圆润 */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+
+  /* 过渡 - 流畅动画 */
+  --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ============================================================
+   基础重置
+   ============================================================ */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body, #app {
+  height: 100%;
+  width: 100%;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: var(--color-bg);
+  color: var(--color-text);
+  line-height: 1.6;
+}
+
+/* ============================================================
+   滚动条样式 - 现代风格
+   ============================================================ */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c6d1c9;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #82908f;
+}
+
+/* ============================================================
+   工具类
+   ============================================================ */
+
+/* Flexbox 工具 */
+.flex {
+  display: flex;
+}
+
+.flex-col {
+  flex-direction: column;
+}
+
+.flex-1 {
+  flex: 1;
+}
+
+/* 文本工具 */
+.text-center {
+  text-align: center;
+}
+
+.text-muted {
+  color: var(--color-text-muted);
+}
+
+/* 间距工具 */
+.p-2 {
+  padding: 8px;
+}
+
+.p-4 {
+  padding: 16px;
+}
+
+.m-0 {
+  margin: 0;
+}
+
+/* 按钮基础样式 - 现代风格 */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 20px;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+  color: white;
+  box-shadow: var(--shadow-md);
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-lg);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-primary:disabled {
+  background: #e7ebe7;
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+}
+
+.btn-ghost:hover {
+  background: var(--color-bg-hover);
+  border-color: var(--color-text-muted);
+}
+/* RAG_AGENT palette: warm canvas, deep teal navigation, sage highlights. */
+:root { --color-nav: #142d34; --color-sage: #d5e8b8; --color-gold: #ac8b52; }
+button, input, textarea { font-family: inherit; }
+:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 3px; }
+::selection { background: #d5e8b8; color: #183b35; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}

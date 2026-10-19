@@ -1,0 +1,638 @@
+{
+  "contract": "expose_business_result with agreed plaintext _text; all _SCHEMAS",
+  "results": [
+    {
+      "title": "供应商查询",
+      "kind": "supplier",
+      "records": [
+        {
+          "supplier_code": "SUP001",
+          "name": "测试名称",
+          "status_name": "暂停合作",
+          "contact_person": "王先生",
+          "phone": "13800000000",
+          "email": "sales@example.com",
+          "address": "上海市测试路一号",
+          "credit_rating": "优秀"
+        }
+      ],
+      "total": 1,
+      "returned_count": 1,
+      "complete": true,
+      "columns": [
+        {
+          "key": "supplier_code",
+          "label": "供应商编号"
+        },
+        {
+          "key": "name",
+          "label": "供应商名称"
+        },
+        {
+          "key": "status_name",
+          "label": "合作状态"
+        },
+        {
+          "key": "contact_person",
+          "label": "联系人"
+        },
+        {
+          "key": "phone",
+          "label": "电话"
+        },
+        {
+          "key": "email",
+          "label": "邮箱"
+        },
+        {
+          "key": "address",
+          "label": "地址"
+        },
+        {
+          "key": "credit_rating",
+          "label": "信用等级"
+        }
+      ],
+      "execution": {
+        "outcome": "success",
+        "message": "查询成功"
+      }
+    },
+    {
+      "title": "物料查询",
+      "kind": "part",
+      "records": [
+        {
+          "part_code": "PART001",
+          "name": "测试名称",
+          "model": "标准型号",
+          "specification": "标准规格",
+          "category": "紧固件",
+          "unit": "件",
+          "purchase_price": "12.50",
+          "suggested_retail_price": "12.50",
+          "stock_warning_value": 20,
+          "supplier_name": "上海供应商（总部） & 配件",
+          "state_label": "启用"
+        }
+      ],
+      "total": 1,
+      "returned_count": 1,
+      "complete": true,
+      "columns": [
+        {
+          "key": "part_code",
+          "label": "物料编号"
+        },
+        {
+          "key": "name",
+          "label": "物料名称"
+        },
+        {
+          "key": "model",
+          "label": "型号"
+        },
+        {
+          "key": "specification",
+          "label": "规格"
+        },
+        {
+          "key": "category",
+          "label": "分类"
+        },
+        {
+          "key": "unit",
+          "label": "单位"
+        },
+        {
+          "key": "purchase_price",
+          "label": "采购单价",
+          "format": "money"
+        },
+        {
+          "key": "suggested_retail_price",
+          "label": "建议零售价",
+          "format": "money"
+        },
+        {
+          "key": "stock_warning_value",
+          "label": "库存预警值",
+          "format": "number"
+        },
+        {
+          "key": "supplier_name",
+          "label": "供应商"
+        },
+        {
+          "key": "state_label",
+          "label": "启用状态"
+        }
+      ],
+      "execution": {
+        "outcome": "success",
+        "message": "查询成功"
+      }
+    },
+    {
+      "title": "采购订单",
+      "kind": "order",
+      "records": [
+        {
+          "order_number": "PO20261007",
+          "order_time": "2026-10-07 09:30:00",
+          "status_name": "已审核",
+          "total_amount": "12.50",
+          "expected_delivery_date": "2026-10-09",
+          "actual_delivery_date": "2026-10-10",
+          "state_label": "部分收货"
+        }
+      ],
+      "total": 1,
+      "returned_count": 1,
+      "complete": true,
+      "columns": [
+        {
+          "key": "order_number",
+          "label": "订单编号"
+        },
+        {
+          "key": "order_time",
+          "label": "下单时间"
+        },
+        {
+          "key": "status_name",
+          "label": "订单状态"
+        },
+        {
+          "key": "total_amount",
+          "label": "订单总金额",
+          "format": "money"
+        },
+        {
+          "key": "expected_delivery_date",
+          "label": "预计交货日期"
+        },
+        {
+          "key": "actual_delivery_date",
+          "label": "实际交货日期"
+        },
+        {
+          "key": "state_label",
+          "label": "收货状态"
+        }
+      ],
+      "execution": {
+        "outcome": "success",
+        "message": "业务结果已查询核验"
+      }
+    },
+    {
+      "title": "采购订单明细",
+      "kind": "order_detail",
+      "records": [
+        {
+          "order_number": "PO20261007",
+          "order_time": "2026-10-07 09:30:00",
+          "status_name": "已审核",
+          "total_amount": "12.50",
+          "expected_delivery_date": "2026-10-09",
+          "actual_delivery_date": "2026-10-10",
+          "state_label": "部分收货",
+          "part_code": "PART001",
+          "part_name": "螺丝",
+          "supplier_name": "上海供应商（总部） & 配件",
+          "quantity": 3,
+          "unit_price": "12.50",
+          "amount": "37.50"
+        }
+      ],
+      "total": 1,
+      "returned_count": 1,
+      "complete": true,
+      "columns": [
+        {
+          "key": "order_number",
+          "label": "订单编号"
+        },
+        {
+          "key": "order_time",
+          "label": "下单时间"
+        },
+        {
+          "key": "status_name",
+          "label": "订单状态"
+        },
+        {
+          "key": "total_amount",
+          "label": "订单总金额",
+          "format": "money"
+        },
+        {
+          "key": "expected_delivery_date",
+          "label": "预计交货日期"
+        },
+        {
+          "key": "actual_delivery_date",
+          "label": "实际交货日期"
+        },
+        {
+          "key": "state_label",
+          "label": "收货状态"
+        },
+        {
+          "key": "part_code",
+          "label": "物料编号"
+        },
+        {
+          "key": "part_name",
+          "label": "物料名称"
+        },
+        {
+          "key": "supplier_name",
+          "label": "供应商"
+        },
+        {
+          "key": "quantity",
+          "label": "采购数量",
+          "format": "number"
+        },
+        {
+          "key": "unit_price",
+          "label": "采购单价",
+          "format": "money"
+        },
+        {
+          "key": "amount",
+          "label": "明细金额",
+          "format": "money"
+        }
+      ],
+      "execution": {
+        "outcome": "success",
+        "message": "查询成功"
+      }
+    },
+    {
+      "title": "库存预警",
+      "kind": "inventory",
+      "records": [
+        {
+          "part_code": "PART001",
+          "part_name": "螺丝",
+          "current_quantity": 8,
+          "safety_stock": 10,
+          "warehouse_location": "一号仓库",
+          "last_inbound_time": "2026-10-06 08:00:00"
+        }
+      ],
+      "total": 1,
+      "returned_count": 1,
+      "complete": true,
+      "columns": [
+        {
+          "key": "part_code",
+          "label": "物料编号"
+        },
+        {
+          "key": "part_name",
+          "label": "物料名称"
+        },
+        {
+          "key": "current_quantity",
+          "label": "当前库存",
+          "format": "number"
+        },
+        {
+          "key": "safety_stock",
+          "label": "安全库存",
+          "format": "number"
+        },
+        {
+          "key": "warehouse_location",
+          "label": "库位"
+        },
+        {
+          "key": "last_inbound_time",
+          "label": "最近入库时间"
+        }
+      ],
+      "execution": {
+        "outcome": "success",
+        "message": "查询成功"
+      }
+    },
+    {
+      "title": "库存调整",
+      "kind": "inventory_adjustment",
+      "records": [
+        {
+          "before_quantity": 100,
+          "delta": -5,
+          "after_quantity": 95
+        }
+      ],
+      "total": 1,
+      "returned_count": 1,
+      "complete": true,
+      "columns": [
+        {
+          "key": "before_quantity",
+          "label": "调整前库存",
+          "format": "number"
+        },
+        {
+          "key": "delta",
+          "label": "调整数量",
+          "format": "number"
+        },
+        {
+          "key": "after_quantity",
+          "label": "调整后库存",
+          "format": "number"
+        }
+      ],
+      "execution": {
+        "outcome": "success",
+        "message": "业务结果已查询核验"
+      }
+    },
+    {
+      "title": "补货建议",
+      "kind": "replenishment",
+      "records": [
+        {
+          "part_code": "PART001",
+          "name": "测试名称",
+          "model": "标准型号",
+          "specification": "标准规格",
+          "category": "紧固件",
+          "unit": "件",
+          "purchase_price": "12.50",
+          "suggested_retail_price": "12.50",
+          "stock_warning_value": 20,
+          "supplier_name": "上海供应商（总部） & 配件",
+          "state_label": "启用",
+          "supplier_status_name": "合作中",
+          "current_quantity": 8,
+          "on_order": 6,
+          "pending_quantity": 2,
+          "demand": 4,
+          "suggested": 10
+        }
+      ],
+      "total": 1,
+      "returned_count": 1,
+      "complete": true,
+      "columns": [
+        {
+          "key": "part_code",
+          "label": "物料编号"
+        },
+        {
+          "key": "name",
+          "label": "物料名称"
+        },
+        {
+          "key": "model",
+          "label": "型号"
+        },
+        {
+          "key": "specification",
+          "label": "规格"
+        },
+        {
+          "key": "category",
+          "label": "分类"
+        },
+        {
+          "key": "unit",
+          "label": "单位"
+        },
+        {
+          "key": "purchase_price",
+          "label": "采购单价",
+          "format": "money"
+        },
+        {
+          "key": "suggested_retail_price",
+          "label": "建议零售价",
+          "format": "money"
+        },
+        {
+          "key": "stock_warning_value",
+          "label": "库存预警值",
+          "format": "number"
+        },
+        {
+          "key": "supplier_name",
+          "label": "供应商"
+        },
+        {
+          "key": "state_label",
+          "label": "启用状态"
+        },
+        {
+          "key": "supplier_status_name",
+          "label": "供应商状态"
+        },
+        {
+          "key": "current_quantity",
+          "label": "当前库存",
+          "format": "number"
+        },
+        {
+          "key": "on_order",
+          "label": "在途采购数量",
+          "format": "number"
+        },
+        {
+          "key": "pending_quantity",
+          "label": "待审批数量",
+          "format": "number"
+        },
+        {
+          "key": "demand",
+          "label": "已确认额外需求",
+          "format": "number"
+        },
+        {
+          "key": "suggested",
+          "label": "建议补货数量",
+          "format": "number"
+        }
+      ],
+      "execution": {
+        "outcome": "success",
+        "message": "查询成功"
+      }
+    },
+    {
+      "title": "采购申请",
+      "kind": "purchase_request",
+      "records": [
+        {
+          "status_name": "待审批",
+          "part_code": "PART001",
+          "part_name": "螺丝",
+          "supplier_name": "上海供应商（总部） & 配件",
+          "quantity": 3,
+          "unit_price": "12.50",
+          "amount": "37.50",
+          "expected_date": "2026-10-09"
+        }
+      ],
+      "total": 1,
+      "returned_count": 1,
+      "complete": true,
+      "columns": [
+        {
+          "key": "status_name",
+          "label": "申请状态"
+        },
+        {
+          "key": "part_code",
+          "label": "物料编号"
+        },
+        {
+          "key": "part_name",
+          "label": "物料名称"
+        },
+        {
+          "key": "supplier_name",
+          "label": "供应商"
+        },
+        {
+          "key": "quantity",
+          "label": "申请数量",
+          "format": "number"
+        },
+        {
+          "key": "unit_price",
+          "label": "采购单价",
+          "format": "money"
+        },
+        {
+          "key": "amount",
+          "label": "申请金额",
+          "format": "money"
+        },
+        {
+          "key": "expected_date",
+          "label": "预计交货日期"
+        }
+      ],
+      "execution": {
+        "outcome": "success",
+        "message": "业务结果已查询核验"
+      }
+    },
+    {
+      "title": "主数据维护申请",
+      "kind": "master_change",
+      "records": [
+        {
+          "status_name": "待审批"
+        }
+      ],
+      "total": 1,
+      "returned_count": 1,
+      "complete": true,
+      "columns": [
+        {
+          "key": "status_name",
+          "label": "申请状态"
+        }
+      ],
+      "execution": {
+        "outcome": "success",
+        "message": "业务结果已查询核验"
+      }
+    },
+    {
+      "title": "采购结果核验",
+      "kind": "procurement",
+      "records": [
+        {
+          "order_number": "PO20261007",
+          "order_time": "2026-10-07 09:30:00",
+          "status_name": "已审核",
+          "total_amount": "12.50",
+          "expected_delivery_date": "2026-10-09",
+          "actual_delivery_date": "2026-10-10",
+          "state_label": "部分收货",
+          "part_code": "PART001",
+          "part_name": "螺丝",
+          "supplier_name": "上海供应商（总部） & 配件",
+          "quantity": 3,
+          "unit_price": "12.50",
+          "amount": "37.50"
+        }
+      ],
+      "total": 1,
+      "returned_count": 1,
+      "complete": true,
+      "columns": [
+        {
+          "key": "order_number",
+          "label": "订单编号"
+        },
+        {
+          "key": "order_time",
+          "label": "下单时间"
+        },
+        {
+          "key": "status_name",
+          "label": "订单状态"
+        },
+        {
+          "key": "total_amount",
+          "label": "订单总金额",
+          "format": "money"
+        },
+        {
+          "key": "expected_delivery_date",
+          "label": "预计交货日期"
+        },
+        {
+          "key": "actual_delivery_date",
+          "label": "实际交货日期"
+        },
+        {
+          "key": "state_label",
+          "label": "收货状态"
+        },
+        {
+          "key": "part_code",
+          "label": "物料编号"
+        },
+        {
+          "key": "part_name",
+          "label": "物料名称"
+        },
+        {
+          "key": "supplier_name",
+          "label": "供应商"
+        },
+        {
+          "key": "quantity",
+          "label": "采购数量",
+          "format": "number"
+        },
+        {
+          "key": "unit_price",
+          "label": "采购单价",
+          "format": "money"
+        },
+        {
+          "key": "amount",
+          "label": "明细金额",
+          "format": "money"
+        }
+      ],
+      "execution": {
+        "outcome": "success",
+        "message": "查询成功"
+      }
+    }
+  ]
+}

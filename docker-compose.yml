@@ -1,0 +1,148 @@
+name: erp-openclaw-docker
+
+x-python: &python
+  build:
+    context: .
+    dockerfile: Dockerfile
+  image: erp-openclaw-python:local
+  init: true
+  restart: unless-stopped
+  security_opt:
+    - no-new-privileges:true
+  cap_drop:
+    - ALL
+
+x-mysql-client: &mysql-client
+  MYSQL_HOST: mysql
+  MYSQL_PORT: "3306"
+  MYSQL_DB: ${MYSQL_DB:-motorparts_db}
+  MYSQL_USER: ${MYSQL_USER:-erp}
+  MYSQL_PASSWORD: ${MYSQL_PASSWORD:?Set MYSQL_PASSWORD in .env.docker}
+
+services:
+  mysql:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DB:-motorparts_db}
+      MYSQL_USER: ${MYSQL_USER:-erp}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?Set MYSQL_PASSWORD in .env.docker}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Set MYSQL_ROOT_PASSWORD in .env.docker}
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./deploy/mysql/001-schema.sql:/docker-entrypoint-initdb.d/001-schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "MYSQL_PWD=\"$$MYSQL_PASSWORD\" mysql --protocol=TCP -h 127.0.0.1 -u \"$$MYSQL_USER\" \"$$MYSQL_DATABASE\" -e 'SELECT 1 FROM inventory LIMIT 0' >/dev/null"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 60s
+
+  postgres:
+    image: postgres:16-bookworm
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-erp_agent}
+      POSTGRES_USER: ${POSTGRES_USER:-erp_agent}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env.docker}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+
+  backend:
+    <<: *python
+    environment:
+      <<: *mysql-client
+    command: ["sh", "-c", "python -m backend.migrate && exec python -m uvicorn backend.app:app --host 0.0.0.0 --port 8080"]
+    depends_on:
+      mysql:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "deploy/healthcheck.py", "backend"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  mcp:
+    <<: *python
+    command: ["python", "-m", "mcp_server.server_main"]
+    environment:
+      ERP_API_BASE_URL: http://backend:8080/api
+      MCP_HOST: 0.0.0.0
+      MCP_PORT: "8001"
+      MCP_PATH: /mcp
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "deploy/healthcheck.py", "mcp"]
+      interval: 20s
+      timeout: 15s
+      retries: 5
+      start_period: 30s
+
+  web:
+    <<: *python
+    command: ["python", "deploy/run_web.py"]
+    environment:
+      <<: *mysql-client
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: "5432"
+      POSTGRES_DB: ${POSTGRES_DB:-erp_agent}
+      POSTGRES_USER: ${POSTGRES_APP_USER:?Set POSTGRES_APP_USER in .env.docker}
+      POSTGRES_PASSWORD: ${POSTGRES_APP_PASSWORD:?Set POSTGRES_APP_PASSWORD in .env.docker}
+      POSTGRES_REQUIRED: "true"
+      ERP_MCP_URL: http://mcp:8001/mcp
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY:?Set DEEPSEEK_API_KEY in .env.docker}
+      DEEPSEEK_BASE_URL: ${DEEPSEEK_BASE_URL:?Set DEEPSEEK_BASE_URL in .env.docker}
+      MAIN_MODEL: ${MAIN_MODEL:-deepseek-chat}
+      SUMMARY_MODEL: ${SUMMARY_MODEL:-deepseek-chat}
+      DISABLE_CHART_MCP: "true"
+      CHART_MCP_URL: ""
+      DISABLE_WEB_SEARCH: "true"
+      LANGSMITH_TRACING: "false"
+      LANGCHAIN_TRACING_V2: "false"
+    volumes:
+      - sandbox_data:/app/src/local_sandbox
+      - download_data:/app/src/download
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mcp:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "deploy/healthcheck.py", "web"]
+      interval: 20s
+      timeout: 20s
+      retries: 6
+      start_period: 120s
+    stop_grace_period: 30s
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    image: erp-openclaw-frontend:local
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_BIND_IP:-127.0.0.1}:${FRONTEND_PORT:-3001}:80"
+    depends_on:
+      web:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1/healthz"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  mysql_data:
+  postgres_data:
+  sandbox_data:
+  download_data:
