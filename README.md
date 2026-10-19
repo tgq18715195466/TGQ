@@ -176,7 +176,7 @@ sequenceDiagram
 
 ## 测试与当前边界
 
-2026-10-19 在原始项目现有环境执行：Python **734 passed / 32 skipped**；前端 **153 passed**；Vite 构建成功。32 项跳过用例需要显式开启真实 MySQL / PostgreSQL 环境。构建有大包提示，Python 有 7 条依赖 / 序列化告警。[命令、范围与限制](docs/testing.md)
+在原始项目现有环境执行：Python **734 passed / 32 skipped**；前端 **153 passed**；Vite 构建成功。32 项跳过用例需要显式开启真实 MySQL / PostgreSQL 环境。构建有大包提示，Python 有 7 条依赖 / 序列化告警。[命令、范围与限制](docs/testing.md)
 
 - 本次未调用真实外部模型，也未对现有业务库存执行验证写入。
 - Web API 当前采用单工作进程和进程内会话锁；不能据此宣称已支持多副本并发恢复。
