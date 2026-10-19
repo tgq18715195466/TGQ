@@ -1,0 +1,32 @@
+name: tests
+on: [push, pull_request]
+jobs:
+  unit-and-postgres:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:18.6
+        env:
+          POSTGRES_PASSWORD: isolated-ci-password
+        ports: ['5432:5432']
+        options: --health-cmd "pg_isready -U postgres" --health-interval 5s --health-retries 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: npm ci --prefix web --no-audit --no-fund
+      - run: npm test --prefix web
+      - run: npm run build --prefix web
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - run: pip install -r requirements.lock && pip install --no-deps -e .
+      - run: python scripts/check_forbidden.py
+      - run: python scripts/bootstrap_local.py
+        env:
+          PGADMIN_PASSWORD: isolated-ci-password
+      - run: alembic upgrade head && python scripts/setup_checkpoints.py
+      - run: python scripts/run_local_tests.py -q
+      - run: ruff check app scripts eval tests --select F

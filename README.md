@@ -1,5 +1,10 @@
 # 企业ERP  · 风驰采购与仓储智能助手
 
+> 本仓库包含两个独立项目：根目录为企业 ERP；[掌柜智库 · RAG 系统](RAG_AGENT/README.md) 位于 `RAG_AGENT/`。
+>
+> RAG：[项目解析](RAG_AGENT/PROJECT_SUMMARY.md) · [快速开始](RAG_AGENT/QUICKSTART.md) · [发布与验证](RAG_AGENT/docs/publication.md)
+
+
 > 面向摩托车零配件业务的 ERP Agent 应用：以 Vue 3 工作台连接 FastAPI、LangGraph / DeepAgents 与 MCP，把查询分析、采购申请、订单、审批、收货和库存流水连接为可追踪的业务流程。
 本仓库同时提供业务源码、部署配置、测试与中文解析；功能描述以当前源码为依据。
 

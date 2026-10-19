@@ -1,0 +1,71 @@
+name: zhanggui-dependencies
+services:
+  milvus:
+    image: milvusdb/milvus:v2.6.0
+    command: ["milvus", "run", "standalone"]
+    environment:
+      ETCD_USE_EMBED: "true"
+      ETCD_DATA_DIR: /var/lib/milvus/etcd
+      ETCD_CONFIG_PATH: /milvus/configs/embedEtcd.yaml
+      COMMON_STORAGETYPE: local
+      DEPLOY_MODE: STANDALONE
+    ports: ["127.0.0.1:19530:19530", "127.0.0.1:9091:9091"]
+    volumes:
+      - milvus-data:/var/lib/milvus
+      - ./deploy/embedEtcd.yaml:/milvus/configs/embedEtcd.yaml:ro
+      - ./deploy/milvus.yaml:/milvus/configs/user.yaml:ro
+    restart: unless-stopped
+  neo4j:
+    image: neo4j:5.26-community
+    environment:
+      NEO4J_AUTH: neo4j/${NEO4J_PASSWORD:?Set NEO4J_PASSWORD}
+      NEO4J_server_memory_heap_initial__size: 256m
+      NEO4J_server_memory_heap_max__size: 256m
+      NEO4J_server_memory_pagecache_size: 128m
+    mem_limit: 768m
+    ports: ["127.0.0.1:7474:7474", "127.0.0.1:7687:7687"]
+    volumes: ["neo4j-data:/data"]
+    restart: unless-stopped
+  embedding:
+    image: ghcr.io/huggingface/text-embeddings-inference:89-1.9
+    command: ["--model-id", "/models", "--pooling", "cls", "--dtype", "float16", "--max-batch-tokens", "8192", "--tokenization-workers", "2", "--max-concurrent-requests", "4"]
+    gpus: all
+    mem_limit: 3g
+    ports: ["127.0.0.1:8002:80"]
+    volumes:
+      - embedding-data:/data
+      - ./.runtime/tei-models/embedding-fp16:/models:ro
+    restart: "on-failure:3"
+  reranker:
+    image: ghcr.io/huggingface/text-embeddings-inference:89-1.9
+    command: ["--model-id", "/models", "--dtype", "float16", "--max-batch-tokens", "8192", "--tokenization-workers", "2", "--max-concurrent-requests", "4"]
+    gpus: all
+    mem_limit: 3g
+    ports: ["127.0.0.1:8003:80"]
+    volumes:
+      - reranker-data:/data
+      - ./.runtime/tei-models/reranker-fp16:/models:ro
+    restart: "on-failure:3"
+  clamav:
+    image: clamav/clamav:1.4
+    ports: ["127.0.0.1:3310:3310"]
+    volumes: ["clamav-db:/var/lib/clamav"]
+    restart: unless-stopped
+
+  scanner:
+    build: ./deploy/scanner-shim
+    environment:
+      CLAMD_HOST: clamav
+      CLAMD_PORT: "3310"
+      PORT: "8080"
+    ports: ["127.0.0.1:8080:8080"]
+    depends_on:
+      - clamav
+    restart: unless-stopped
+
+volumes:
+  milvus-data:
+  neo4j-data:
+  embedding-data:
+  reranker-data:
+  clamav-db:

@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>掌柜智库 · 完整链路与运行体检报告</title>
+<style>
+  :root{
+    --ink:#1d2f33; --muted:#5c6f72; --teal:#15796f; --teal-deep:#0f5c54; --teal-soft:#e4f2ed;
+    --paper:#f5f7f4; --card:#ffffff; --line:#d9e3dd; --amber:#a06a12; --amber-soft:#fff3d6;
+    --red:#b3433a; --red-soft:#fbe9e6; --green:#2f7d4f; --green-soft:#e5f3e9;
+    --shadow:0 14px 44px rgba(20,52,48,.07); --mono:"Cascadia Code","SF Mono",Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:"Microsoft YaHei","PingFang SC","Noto Sans CJK SC",system-ui,sans-serif;line-height:1.65}
+  a{color:var(--teal);text-decoration:none}
+  a:hover{text-decoration:underline}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 32px}
+  header{background:linear-gradient(135deg,#0f3b3d 0%,#15584f 60%,#1a7268 100%);color:#fff;overflow:hidden;position:relative}
+  header:after{content:"";position:absolute;right:-160px;top:-260px;width:760px;height:760px;border:1px solid rgba(200,235,220,.16);border-radius:50%;box-shadow:0 0 0 120px rgba(200,235,220,.05),0 0 0 240px rgba(200,235,220,.03);pointer-events:none}
+  .hero{padding:54px 0 44px;position:relative;z-index:1}
+  .eyebrow{display:flex;align-items:center;gap:11px;color:#a8d9c6;font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase}
+  .eyebrow:before{content:"";width:28px;height:3px;border-radius:3px;background:#7fd0ab}
+  h1{font-size:clamp(30px,4.2vw,50px);line-height:1.15;margin:18px 0 14px;font-weight:750;letter-spacing:-.02em}
+  .hero p{max-width:840px;color:#cfe7dc;font-size:15px;margin:0}
+  .hero .meta{margin-top:22px;display:flex;flex-wrap:wrap;gap:10px}
+  .chip{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.16);border-radius:999px;padding:5px 14px;font-size:12.5px;color:#eaf5f0}
+  .toc{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 22px;margin:26px 0;box-shadow:var(--shadow)}
+  .toc b{color:var(--teal-deep)}
+  .toc a{display:inline-block;margin:4px 14px 4px 0;color:var(--ink)}
+  section{margin:44px 0}
+  h2{font-size:26px;margin:0 0 6px;letter-spacing:-.01em;display:flex;align-items:center;gap:12px}
+  h2 .num{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:10px;background:var(--teal);color:#fff;font-size:16px;font-weight:700}
+  .lede{color:var(--muted);margin:0 0 20px;max-width:900px}
+  .grid{display:grid;gap:18px}
+  .g3{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+  .g2{grid-template-columns:repeat(auto-fit,minmax(340px,1fr))}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px 22px;box-shadow:var(--shadow)}
+  .card h3{margin:0 0 10px;font-size:17px}
+  .card p{margin:6px 0;color:var(--muted);font-size:14px}
+  .status{display:inline-block;border-radius:8px;padding:2px 10px;font-size:12px;font-weight:700;letter-spacing:.02em}
+  .ok{background:var(--green-soft);color:var(--green)}
+  .warn{background:var(--amber-soft);color:var(--amber)}
+  .bad{background:var(--red-soft);color:var(--red)}
+  .big-num{font-size:34px;font-weight:750;color:var(--teal-deep);line-height:1}
+  .flow{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px;box-shadow:var(--shadow);overflow-x:auto}
+  .stage{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+  .node{background:var(--teal-soft);border:1px solid #bfe0d4;color:var(--teal-deep);border-radius:9px;padding:8px 13px;font-size:13px;font-weight:600;white-space:nowrap}
+  .node.alt{background:#eef2f8;border-color:#d4dcec;color:#34507a}
+  .node.hot{background:var(--amber-soft);border-color:#f0d8a0;color:var(--amber)}
+  .node.end{background:var(--green-soft);border-color:#bfe3ca;color:var(--green)}
+  .arrow{color:#9db3a9;font-weight:700;padding:0 2px}
+  .brace{color:var(--muted);font-size:12px}
+  .branch{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0}
+  @media(max-width:720px){.branch{grid-template-columns:1fr}}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;background:var(--card)}
+  th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{background:#eef4f1;color:var(--teal-deep);font-weight:700;white-space:nowrap}
+  tr:last-child td{border-bottom:none}
+  .wrap-t{background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);overflow:hidden}
+  .wrap-t .pad{padding:6px 0}
+  code,.mono{font-family:var(--mono);font-size:12.5px;background:#eef2f1;border:1px solid #dfe7e2;border-radius:6px;padding:1px 6px}
+  pre{background:#12282b;color:#d7e8e1;border-radius:12px;padding:16px 18px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.6}
+  pre .c{color:#7fa99a}
+  .callout{border-left:4px solid var(--teal);background:var(--teal-soft);border-radius:0 12px 12px 0;padding:14px 18px;margin:16px 0}
+  .callout.ok{border-color:var(--green);background:var(--green-soft)}
+  .callout.warn{border-color:var(--amber);background:var(--amber-soft)}
+  .callout.bad{border-color:var(--red);background:var(--red-soft)}
+  .callout b{display:block;margin-bottom:4px}
+  ul.tight{margin:8px 0;padding-left:20px}
+  ul.tight li{margin:5px 0}
+  .legend{display:flex;flex-wrap:wrap;gap:14px;font-size:12.5px;color:var(--muted);margin:10px 0 4px}
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+  .dot{width:11px;height:11px;border-radius:4px;display:inline-block}
+  footer{margin-top:56px;padding:28px 0;border-top:1px solid var(--line);color:var(--muted);font-size:13px}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap hero">
+    <div class="eyebrow">Project Chain &amp; Runtime Health Report</div>
+    <h1>掌柜智库 · 完整链路与运行体检报告</h1>
+    <p>从「文档导入」到「知识问答」的端到端业务链路梳理，附当前环境（本机）真实运行状态核验。本轮已完成扫描器接入与 Worker 拉起，两条链路均用真实外部服务端到端跑通。</p>
+    <div class="meta">
+      <span class="chip">FastAPI · Python 3.12</span>
+      <span class="chip">PostgreSQL 单一事实源</span>
+      <span class="chip">LangGraph 持久化编排</span>
+      <span class="chip">Milvus + Neo4j 混合检索</span>
+      <span class="chip">ClamAV 恶意扫描</span>
+      <span class="chip">React 19 · TypeScript · Vite</span>
+      <span class="chip">复检 2026-10-11 · 已闭环</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <nav class="toc">
+    <b>目录</b>
+    <a href="#conclusion">① 体检结论</a>
+    <a href="#arch">② 系统组件架构</a>
+    <a href="#ingest">③ 导入链路</a>
+    <a href="#query">④ 问答链路</a>
+    <a href="#data">⑤ 数据模型</a>
+    <a href="#health">⑥ 运行体检明细</a>
+    <a href="#gaps">⑦ 已修复项与剩余验收</a>
+    <a href="#files">⑧ 关键文件索引</a>
+  </nav>
+
+  <section id="conclusion">
+    <h2><span class="num">①</span>体检结论</h2>
+    <p class="lede">一句话：<strong>基础设施与服务全部就绪，两条业务链路已用真实外部服务端到端跑通并闭环</strong>。剩余未达成的是任务书要求的「完整验收」级指标（质量/性能/安全/生产化），而非运行断点。</p>
+    <div class="grid g3">
+      <div class="card">
+        <span class="status ok">✅ 已就绪</span>
+        <h3>基础设施与服务</h3>
+        <p>Python 依赖完整（<code>pip check</code> 通过）；PostgreSQL 迁移在 <code>0002 head</code>；API（:8000）健康；前端 <code>web/dist</code> 已构建。</p>
+        <p>Milvus、Neo4j、Embedding(TEI bge-m3)、Reranker(TEI)、MinerU、<b>ClamAV + 扫描 shim</b>、DeepSeek 全部在线并各自验证。</p>
+      </div>
+      <div class="card">
+        <span class="status ok">✅ 已闭环</span>
+        <h3>两条链路实测跑通</h3>
+        <p><b>导入链路</b>：上传→ClamAV 扫描→MinerU 解析→切分→Embedding→Milvus/Neo4j→发布，13 阶段全 DONE，文档 <code>READY</code>。</p>
+        <p><b>问答链路</b>：三路召回→RRF→重排→证据门→LLM 逐字摘录→引用→SSE，真实出答案 + 引用。</p>
+      </div>
+      <div class="card">
+        <span class="status warn">⚠️ 未完成验收</span>
+        <h3>任务书完整验收</h3>
+        <p>真实 OCR 准确率、RAGAS 质量阈值、100 万 chunk 并发/首字性能、RPO/RTO 演练、生产 SSO/权限管理等仍未达标。</p>
+        <p>详见 <code>docs/implementation_status.md</code> 的 AT01–AT16。</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="arch">
+    <h2><span class="num">②</span>系统组件架构</h2>
+    <p class="lede">PostgreSQL 是唯一业务事实源（原文件、规范化 PDF、解析块、资产、chunk、会话、任务、Outbox、SSE 事件、评测、审计全部落库），外部系统只存派生数据。Milvus 只存向量与标量、正文回查 PG；Neo4j 存文档/块/实体/别名与证据关系。</p>
+    <div class="flow">
+      <div class="stage">
+        <span class="node alt">React SPA<br>web/dist</span>
+        <span class="arrow">⇄</span>
+        <span class="node">FastAPI<br>:8000</span>
+        <span class="arrow">⇄</span>
+        <span class="node hot">PostgreSQL<br>:5432 · 唯一事实源</span>
+        <span class="arrow">⇄</span>
+        <span class="node">Worker<br>app.worker</span>
+      </div>
+      <div class="branch">
+        <div class="node">MinerU :8001<br><small>OCR/解析</small></div>
+        <div class="node">Milvus :19530<br><small>向量检索</small></div>
+        <div class="node">Neo4j :7687<br><small>图谱检索</small></div>
+      </div>
+      <div class="branch">
+        <div class="node">Embedding :8002<br><small>TEI · bge-m3</small></div>
+        <div class="node">Reranker :8003<br><small>TEI · bge-reranker</small></div>
+        <div class="node">LLM · DeepSeek<br><small>openai-compatible</small></div>
+      </div>
+      <div class="branch">
+        <div class="node">Scanner shim :8080<br><small>HTTP→clamd</small></div>
+        <div class="node">ClamAV :3310<br><small>恶意扫描</small></div>
+        <div class="node">Redis :6379<br><small>可选限流(默认关)</small></div>
+      </div>
+      <p style="color:var(--muted);font-size:12.5px;margin:10px 0 0">Worker 处理导入前会把原始字节经 shim 流式送入 ClamAV（<code>INSTREAM</code> 协议），仅 <code>{"status":"clean"}</code> 放行，否则失败关闭。LibreOffice 用于 Office 格式转 PDF（Docker 镜像内置）。</p>
+    </div>
+  </section>
+
+  <section id="ingest">
+    <h2><span class="num">③</span>链路一 · 文档导入 / 知识入库</h2>
+    <p class="lede">入口 <code>POST /api/v1/kbs/{kb_id}/documents</code>（需 <code>Idempotency-Key</code>）。API 只做校验、去重、建任务；耗时工作全部在 Worker 内，由 LangGraph 13 阶段图驱动，检查点落在 PG <code>workflow</code> schema，崩溃后可从当前阶段幂等续跑。</p>
+    <div class="flow">
+      <div class="legend">
+        <span><i class="dot" style="background:#bfe0d4"></i> PG 事务</span>
+        <span><i class="dot" style="background:#f0d8a0"></i> 外部服务调用</span>
+        <span><i class="dot" style="background:#bfe3ca"></i> 发布/终点</span>
+      </div>
+      <div class="stage">
+        <span class="node">上传+validate_file</span><span class="arrow">→</span>
+        <span class="node">save_blob(SHA256去重)</span><span class="arrow">→</span>
+        <span class="node">建 Document/Version/Job</span>
+      </div>
+      <p class="brace">—— Worker 消费 IngestJob，LangGraph 13 阶段（每阶段落 JobStep/状态，幂等）——</p>
+      <div class="stage">
+        <span class="node">validate_file</span><span class="arrow">→</span>
+        <span class="node hot">scan_file(ClamAV)</span><span class="arrow">→</span>
+        <span class="node">persist_document</span><span class="arrow">→</span>
+        <span class="node">normalize_file</span><span class="arrow">→</span>
+        <span class="node hot">parse_with_mineru</span><span class="arrow">→</span>
+        <span class="node">validate_parse_quality</span><span class="arrow">→</span>
+        <span class="node">build_outline</span><span class="arrow">→</span>
+        <span class="node">create_chunks</span>
+      </div>
+      <div class="stage" style="margin-top:8px">
+        <span class="node hot">generate_embeddings</span><span class="arrow">→</span>
+        <span class="node hot">sync_milvus</span><span class="arrow">→</span>
+        <span class="node">extract_entities</span><span class="arrow">→</span>
+        <span class="node hot">sync_neo4j</span><span class="arrow">→</span>
+        <span class="node end">publish_version</span><span class="arrow">→</span>
+        <span class="node end">cleanup → READY</span>
+      </div>
+      <p style="color:var(--muted);font-size:12.5px;margin:10px 0 0">
+        关键设计：chunk 与两类 Outbox（milvus/neo4j）同事务写入 → 外部调用完成后提交 DONE 收据；<code>publish_version</code> 原子门要求「质量 PASS/WARN + 非空 chunk + Milvus&amp;Neo4j 收据全 DONE」才切换 <code>current_version_id</code>。reconciler 每 60s 比对 ID 集合，漂移超 15 分钟告警并生成补偿。
+      </p>
+    </div>
+  </section>
+
+  <section id="query">
+    <h2><span class="num">④</span>链路二 · 智能问答 / 证据检索</h2>
+    <p class="lede">入口 <code>POST /api/v1/chat/runs</code> → 创建持久 QueryRun + 用户消息 + <code>run.started</code>。Worker 走 LangGraph 15 节点图；前端通过 SSE（<code>Last-Event-ID</code> 重放）订阅增量事件。</p>
+    <div class="flow">
+      <div class="stage">
+        <span class="node">authorize_scope</span><span class="arrow">→</span>
+        <span class="node">classify_query</span><span class="arrow">→</span>
+        <span class="node">rewrite_query</span>
+      </div>
+      <div class="branch">
+        <div class="node hot">retrieve_vectors<br><small>Milvus · top40</small></div>
+        <div class="node">retrieve_keywords<br><small>PG FTS/jieba · top30</small></div>
+        <div class="node hot">retrieve_graph<br><small>Neo4j ≤2跳 · top30</small></div>
+      </div>
+      <div class="stage" style="margin-top:10px">
+        <span class="node">fuse_candidates(RRF k=60)</span><span class="arrow">→</span>
+        <span class="node hot">rerank_candidates(top50)</span><span class="arrow">→</span>
+        <span class="node">build_context(≤10)</span><span class="arrow">→</span>
+        <span class="node">check_evidence(证据门)</span>
+      </div>
+      <div class="stage" style="margin-top:8px">
+        <span class="node">optional_web_search(MCP)</span><span class="arrow">→</span>
+        <span class="node hot">generate_answer(逐字摘录)</span><span class="arrow">→</span>
+        <span class="node">verify_citations(逐字校验)</span><span class="arrow">→</span>
+        <span class="node end">persist_answer(原子提交)</span><span class="arrow">→</span>
+        <span class="node end">stream_result(SSE)</span>
+      </div>
+      <p style="color:var(--muted);font-size:12.5px;margin:10px 0 0">
+        生成采用<strong>严格逐字摘录模式</strong>：每句必须逐字存在于所有引用证据中，代码级校验通过才发 <code>answer.delta</code>，否则拒答（<code>INSUFFICIENT_EVIDENCE</code>）。引用为不可漂移快照（document_id/version/chunk_id/页码/章节/摘录）。权限在 API、PG 显式条件+RLS、Milvus 标量、Cypher、最终回表五处一致校验。
+      </p>
+    </div>
+  </section>
+
+  <section id="data">
+    <h2><span class="num">⑤</span>数据模型概览</h2>
+    <p class="lede"><code>app/models.py</code> 定义 31 张业务表（<code>alembic/schema_v1.py</code> 为初始快照，0002 新增登录凭据表），实测 public schema 共 32 张（含 alembic_version）。全部业务表带租户字段 + 强制 RLS。</p>
+    <div class="wrap-t"><table>
+      <thead><tr><th>分组</th><th>表</th><th>职责</th></tr></thead>
+      <tbody>
+        <tr><td>身份与范围</td><td>tenants / users / roles / user_roles / knowledge_bases / kb_members / login_credentials</td><td>多租户、RBAC（owner/editor/reader）、独立加盐 PBKDF2 密码凭据</td></tr>
+        <tr><td>文件与版本</td><td>documents / document_versions / document_blobs</td><td>文档、版本号、Blob 分表延迟加载、SHA256 去重</td></tr>
+        <tr><td>解析</td><td>parsed_pages / parsed_blocks / document_assets / chunks</td><td>MinerU 解析结构、图片资产、稳定 UUID5 chunk + FTS</td></tr>
+        <tr><td>任务一致性</td><td>ingest_jobs / job_steps / sync_outbox / reconcile_issues</td><td>持久任务、阶段步骤、事务 Outbox、对账差异</td></tr>
+        <tr><td>问答</td><td>chat_sessions / messages / query_runs / retrieval_candidates / answer_citations / feedback / run_events</td><td>会话、运行、召回候选、引用快照、SSE 事件</td></tr>
+        <tr><td>评测审计</td><td>eval_datasets / eval_cases / eval_runs / eval_results / audit_logs / idempotency_records</td><td>版本化评测、审计日志、幂等记录</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section id="health">
+    <h2><span class="num">⑥</span>运行体检明细（本机实测）</h2>
+    <p class="lede">以下为 2026-10-11 在本机实际探测的结果，非文档推断。</p>
+    <div class="wrap-t"><table>
+      <thead><tr><th>检查项</th><th>结果</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td>Python 依赖</td><td><span class="status ok">✅ 通过</span></td><td><code>pip check</code> 无破损依赖；Python 3.12 venv 完整</td></tr>
+        <tr><td>PostgreSQL :5432</td><td><span class="status ok">✅ 连接</span></td><td>迁移 <code>0002 (head)</code>；32 张表；应用角色 NOSUPERUSER/NOBYPASSRLS</td></tr>
+        <tr><td>API :8000</td><td><span class="status ok">✅ 运行</span></td><td><code>/health/ready</code> 返回 <code>postgres: connected</code>；登录、列表、上传、重试、问答均 200/202</td></tr>
+        <tr><td>前端 web/dist</td><td><span class="status ok">✅ 已构建</span></td><td>index.html + assets 存在；Node v24.15 / npm 11.12 可用</td></tr>
+        <tr><td>Milvus :19530</td><td><span class="status ok">✅ 运行</span></td><td>collection <code>knowledge_d790e737453c_1024</code> 已建（bge-m3 · 1024 维），向量已写入</td></tr>
+        <tr><td>Neo4j :7687</td><td><span class="status ok">✅ 运行</span></td><td>bolt 连接正常，chunk/实体节点已写入</td></tr>
+        <tr><td>Embedding :8002</td><td><span class="status ok">✅ 通过</span></td><td>TEI bge-m3 实测返回 2×1024 维向量</td></tr>
+        <tr><td>Reranker :8003</td><td><span class="status ok">✅ 通过</span></td><td>TEI 实测返回相关性分数</td></tr>
+        <tr><td>MinerU :8001</td><td><span class="status ok">✅ 运行</span></td><td>契约测试通过；真实解析出文本块（parser 3.4.5）</td></tr>
+        <tr><td>ClamAV + shim :3310/:8080</td><td><span class="status ok">✅ 已配置</span></td><td>EICAR 测试串实测拦截（<code>MALWARE_SCAN_REJECTED</code>），干净文件放行</td></tr>
+        <tr><td>LLM · DeepSeek</td><td><span class="status ok">✅ 已实测</span></td><td>真实生成逐字摘录答案 + 引用</td></tr>
+        <tr><td>Worker 进程</td><td><span class="status ok">✅ 运行中</span></td><td>tenant <code>53cb03d3-…</code>，消费导入/问答任务</td></tr>
+        <tr><td>Redis :6379</td><td><span class="status warn">⚠️ 未启用</span></td><td>仅可选限流，默认关闭，不影响业务</td></tr>
+        <tr><td>端到端真实数据</td><td><span class="status ok">✅ 已闭环</span></td><td>1 文档 <code>READY</code>、1 chunk 入库 Milvus/Neo4j，问答出答案 + 1 引用</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section id="gaps">
+    <h2><span class="num">⑦</span>已修复项与剩余验收</h2>
+    <p class="lede">上一版体检的两个阻断项已在本轮消除；剩下的是任务书「完整验收」级指标，与运行无关。</p>
+
+    <div class="callout ok"><b>已修复 · 恶意扫描器缺失 → 已部署 ClamAV + shim</b>
+      新增 <code>deploy/scanner-shim/</code>（纯标准库 HTTP→clamd 适配）与 compose 里的 <code>clamav</code>/<code>scanner</code> 服务；<code>.env</code> 已设 <code>SCANNER_URL=http://127.0.0.1:8080/scan</code>。用项目自己的 <code>HTTPMalwareScanner</code> 实测：EICAR 病毒串被拦、干净文件放行。</div>
+
+    <div class="callout ok"><b>已修复 · 无 Worker 进程 → 已拉起并跑通导入</b>
+      已启动 <code>python -m app.worker --tenant 53cb03d3-…</code>，对之前卡在 <code>validate_file</code> 的文档版本重试后，13 阶段全部 <code>DONE</code>、文档发布 <code>READY</code>、Milvus/Neo4j 收据 <code>DONE</code>；随后问答链路也出真实答案 + 引用。</div>
+
+    <div class="callout warn"><b>剩余 · 任务书「完整验收」项（非运行断点）</b>
+      <ul class="tight">
+        <li>真实 MinerU OCR 准确率、图片 OCR/图表质量（AT01/AT02 未做真实数据验收）</li>
+        <li>300 条人工数据 + RAGAS 质量阈值（Faithfulness/Recall/MRR/Citation）</li>
+        <li>100 万 chunk 与并发/首字性能、RPO/RTO 演练（AT14）</li>
+        <li>真实 Milvus/Neo4j 越权矩阵、Prompt Injection 攻击评测（AT11/AT12）</li>
+        <li>生产 SSO/多因素、用户权限管理页面、MCP 外部结果来源模型</li>
+      </ul>
+      详见 <code>docs/implementation_status.md</code> AT01–AT16。</div>
+  </section>
+
+  <section id="files">
+    <h2><span class="num">⑧</span>关键文件索引</h2>
+    <div class="wrap-t"><table>
+      <thead><tr><th>路径</th><th>作用</th></tr></thead>
+      <tbody>
+        <tr><td><code>app/api.py</code></td><td>FastAPI 全部路由：登录/知识库/文档/上传/任务/问答 SSE/评测/健康检查</td></tr>
+        <tr><td><code>app/worker.py</code></td><td>租户 Worker：轮询 IngestJob/QueryRun/SyncOutbox/EvalRun + 对账</td></tr>
+        <tr><td><code>app/workflows.py</code></td><td>导入 LangGraph 13 阶段图 + PG checkpointer</td></tr>
+        <tr><td><code>app/query.py</code></td><td>问答 LangGraph 15 节点图（三路召回→融合→证据门→生成→校验）</td></tr>
+        <tr><td><code>app/ingest_runner.py</code></td><td>导入各阶段实现（校验/扫描/归一化/MinerU/切分/索引/发布）</td></tr>
+        <tr><td><code>app/retrieval.py</code></td><td>RRF 融合、路由分类、证据门、逐字引用校验</td></tr>
+        <tr><td><code>app/adapters/*.py</code></td><td>ModelClient(embed/rerank/generate) / VectorStore(Milvus) / GraphStore(Neo4j)</td></tr>
+        <tr><td><code>deploy/scanner-shim/</code></td><td>ClamAV HTTP 适配 shim（原始字节→clamd INSTREAM，返回项目契约）</td></tr>
+        <tr><td><code>app/repository.py</code> / <code>app/sync.py</code></td><td>权限/幂等/发布门；Outbox 投递、删除补偿、对账</td></tr>
+        <tr><td><code>app/models.py</code> / <code>alembic/</code></td><td>31 张业务表 ORM + RLS/FTS 迁移</td></tr>
+        <tr><td><code>web/src/</code></td><td>React 前端（工作台/知识库/文档/问答/评测/设置 + API/SSE 客户端）</td></tr>
+        <tr><td><code>scripts/start_local.ps1</code></td><td>本机一键启动：构建前端→迁移→登录→拉起 API→打开页面</td></tr>
+        <tr><td><code>compose.yaml</code> / <code>compose.dependencies.yaml</code></td><td>容器化全栈 / 依赖(Milvus+Neo4j+TEI+ClamAV+scanner)</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <footer>
+    掌柜智库（zhanggui-knowledge）· 完整链路与运行体检报告 · 复检于 2026-10-11 ·
+    结论依据本机实测（端口连通、数据库计数、外部服务探测、端到端导入与问答、EICAR 拦截）。
+  </footer>
+</div>
+</body>
+</html>

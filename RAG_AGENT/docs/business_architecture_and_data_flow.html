@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>掌柜智库｜业务架构与数据流程</title>
+  <style>
+    :root{--ink:#17343a;--muted:#5e7475;--teal:#167c72;--teal-soft:#e5f3ee;--paper:#f6f7f2;--white:#fff;--line:#d7e2dc;--amber:#a36c16;--amber-soft:#fff4da;--shadow:0 16px 50px rgba(27,62,59,.07)}
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;background:var(--paper);color:var(--ink);font-family:"Microsoft YaHei","PingFang SC","Noto Sans CJK SC",system-ui,sans-serif;line-height:1.6}
+    a{color:var(--teal)}
+    .wrap{max-width:1512px;margin:auto;padding:0 42px}
+    header{background:#173c40;color:#fff;position:relative;overflow:hidden}
+    header:after{content:"";position:absolute;right:-120px;top:-240px;width:690px;height:690px;border:1px solid rgba(187,229,215,.16);border-radius:50%;box-shadow:0 0 0 110px rgba(187,229,215,.045),0 0 0 220px rgba(187,229,215,.03);pointer-events:none}
+    .hero{padding:56px 0 47px;position:relative;z-index:1}
+    .eyebrow{display:flex;align-items:center;gap:11px;color:#9fd3c4;font-size:13px;font-weight:700;letter-spacing:.13em}
+    .eyebrow:before{content:"";width:27px;height:3px;border-radius:3px;background:#78c8ad}
+    h1{font-size:clamp(32px,4vw,56px);line-height:1.19;letter-spacing:-.03em;margin:20px 0 17px;font-weight:750}
+    .hero p{max-width:750px;color:#c4dad5;font-size:17px;margin:0}
+    .hero-meta{display:flex;flex-wrap:wrap;gap:12px;margin-top:30px}
+    .hero-meta span{border:1px solid rgba(218,240,232,.26);border-radius:999px;padding:6px 13px;color:#daeee6;font-size:12px}
+    nav{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;box-shadow:0 5px 18px rgba(21,55,49,.035)}
+    nav .wrap{display:flex;align-items:center;gap:8px;overflow:auto;white-space:nowrap}
+    nav a{display:inline-flex;padding:17px 17px;color:#496361;text-decoration:none;font-size:13px;font-weight:700;border-bottom:3px solid transparent}
+    nav a:hover,nav a:focus-visible{color:var(--teal);border-color:var(--teal);outline:none}
+    main{padding:24px 0 88px}
+    section{scroll-margin-top:84px;margin-top:54px}
+    .section-head{display:flex;align-items:flex-start;gap:17px;margin-bottom:24px}
+    .index{font-size:14px;color:var(--teal);font-weight:800;line-height:2.2;border-top:3px solid var(--teal);min-width:36px}
+    h2{font-size:clamp(25px,2.6vw,35px);line-height:1.25;margin:0 0 8px;letter-spacing:-.025em}
+    .section-head p{color:var(--muted);margin:0;max-width:900px}
+    .legend{display:flex;flex-wrap:wrap;gap:18px;margin:0 0 17px 52px;color:#506766;font-size:12px}
+    .legend span{display:inline-flex;align-items:center;gap:8px}
+    .swatch{width:22px;height:12px;border-radius:3px;background:var(--teal-soft);border:1.5px solid var(--teal)}
+    .swatch.pending{background:var(--amber-soft);border:1.5px dashed var(--amber)}
+    .diagram-shell,.flow-shell{background:#fff;border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);overflow:hidden}
+    .diagram-scroll,.flow-scroll{overflow-x:auto;padding:30px 28px 24px}
+    .architecture{display:grid;grid-template-columns:176px 36px 218px 36px 250px 36px 250px 36px 236px;gap:0;min-width:1310px;align-items:stretch}
+    .layer{display:flex;flex-direction:column;gap:10px}
+    .layer-title{height:39px;display:flex;align-items:center;gap:8px;font-size:11px;color:#58706b;text-transform:uppercase;letter-spacing:.11em;font-weight:850;border-bottom:1px solid var(--line);margin-bottom:7px}
+    .layer-title b{color:var(--teal);font-size:14px;letter-spacing:0}
+    .node{border:1px solid #cadfd5;background:#f8fbf9;border-radius:12px;padding:14px 15px;min-height:78px;position:relative}
+    .node strong{display:block;font-size:14px;line-height:1.35;margin-bottom:5px}
+    .node small{display:block;color:#617672;font-size:11px;line-height:1.5}
+    .node.primary{background:var(--teal-soft);border-color:#8ac8b3}
+    .node.pending{background:#fffbf2;border:1.5px dashed #d4a34d}
+    .node.pending small{color:#866831}
+    .node.db{background:#eaf1ed;border-color:#91b3a6;min-height:252px}
+    .db-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:13px}
+    .db-grid span{font-size:10px;background:#fff;border:1px solid #d1e0d7;padding:5px 6px;border-radius:5px;color:#385a51}
+    .bridge{display:flex;align-items:center;justify-content:center;padding-top:40px;color:var(--teal);font-size:28px;font-weight:700}
+    .bridge span{display:flex;align-items:center;justify-content:center;width:29px;height:29px;border-radius:50%;background:#e3f2eb;font-size:18px}
+    figcaption{border-top:1px solid var(--line);padding:12px 28px;color:#667c77;font-size:12px;background:#fcfdfb}
+    .principles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;margin-top:16px}
+    .principle{background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px}
+    .principle strong{display:block;font-size:13px;margin-bottom:4px}
+    .principle p{margin:0;color:var(--muted);font-size:12px}
+    .flow-scroll{padding:30px 28px 27px}
+    .flow-list{display:flex;list-style:none;padding:0;margin:0;min-width:max-content;gap:28px}
+    .flow-list li{width:180px;min-height:181px;position:relative;display:flex;flex-direction:column;align-items:flex-start;padding:17px 15px;background:#f7fbf8;border:1px solid #cce0d4;border-radius:12px}
+    .flow-list li:not(:last-child):after{content:"→";position:absolute;left:calc(100% + 5px);top:67px;font-size:21px;color:#60a491;font-weight:700;width:20px;text-align:center}
+    .flow-list li.external{background:#fffcf5;border:1.5px dashed #d0a455}
+    .step{display:inline-flex;align-items:center;justify-content:center;background:#d8eee4;color:#126e63;border-radius:50%;font-size:11px;font-weight:850;width:27px;height:27px;margin-bottom:17px}
+    .external .step{background:#f9e7be;color:#936214}
+    .flow-list strong{font-size:14px;line-height:1.35;margin-bottom:7px}
+    .flow-list small{color:#5c746f;font-size:11px;line-height:1.52}
+    .flow-list .external small{color:#826b42}
+    .flow-note{background:#f3f7f4;border-top:1px solid var(--line);padding:14px 28px;font-size:12px;color:#526f66}
+    .flow-note strong{color:#246d5e}
+    .boundary{display:grid;grid-template-columns:1.2fr 1fr;gap:22px;align-items:stretch}
+    .boundary-card{border-radius:17px;padding:24px 27px;border:1px solid #e1d2aa;background:#fff9eb}
+    .boundary-card h3{font-size:17px;margin:0 0 11px;color:#805814}
+    .boundary-card p{margin:0;color:#695d46;font-size:13px}
+    .boundary-card ul{margin:9px 0 0;padding-left:20px;color:#695d46;font-size:13px}
+    .source-card{border-radius:17px;padding:24px 27px;border:1px solid var(--line);background:#fff}
+    .source-card h3{font-size:17px;margin:0 0 11px}
+    .source-card a{display:block;margin:6px 0;font-size:13px;word-break:break-word}
+    footer{padding:20px 0 28px;border-top:1px solid var(--line);color:#73847f;font-size:12px}
+    @media(max-width:850px){.wrap{padding:0 20px}.hero{padding:42px 0 37px}.hero p{font-size:15px}.legend{margin-left:0}.principles{grid-template-columns:repeat(2,minmax(0,1fr))}.boundary{grid-template-columns:1fr}}
+    @media(max-width:520px){.principles{grid-template-columns:1fr}.diagram-scroll,.flow-scroll{padding-left:17px;padding-right:17px}.section-head{gap:10px}nav a{padding:14px 12px}}
+    @media print{body{background:#fff}header{print-color-adjust:exact;-webkit-print-color-adjust:exact}nav{display:none}.wrap{max-width:none;padding:0 14mm}main{padding-bottom:0}section{margin-top:27px;break-inside:avoid}.diagram-shell,.flow-shell{box-shadow:none}.diagram-scroll,.flow-scroll{overflow:visible;zoom:.75}.architecture{min-width:1310px}.flow-list{zoom:.8}.principles,.boundary{break-inside:avoid}footer{display:none}}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap hero">
+      <div class="eyebrow">掌柜智库 · 项目视图</div>
+      <h1>业务架构与数据流程</h1>
+      <p>从用户登录、知识库建设，到文档发布与 Agent 引用回答。图示依据当前仓库实现，并明确标出尚待部署的外部服务。</p>
+      <div class="hero-meta"><span>当前项目实现</span><span>更新：2026-10-10</span><span>单文件 HTML · 可离线查看</span></div>
+    </div>
+  </header>
+  <nav aria-label="页面导航"><div class="wrap"><a href="#business">业务架构</a><a href="#ingestion">文档入库与发布</a><a href="#query">Agent 问答</a><a href="#boundary">实施边界与依据</a></div></nav>
+  <main class="wrap">
+    <section id="business" aria-labelledby="business-title">
+      <div class="section-head"><span class="index">01</span><div><h2 id="business-title">业务架构图</h2><p>由左向右阅读：用户通过 React 页面进入 FastAPI，业务服务以 PostgreSQL 为权威数据源，并通过适配器调用外部能力。</p></div></div>
+      <div class="legend" aria-label="图例"><span><i class="swatch" aria-hidden="true"></i>已实现 / 本地可验证</span><span><i class="swatch pending" aria-hidden="true"></i>接口或流程已预留，外部服务待部署</span></div>
+      <figure class="diagram-shell" style="margin:0">
+        <div class="diagram-scroll" role="img" aria-label="掌柜智库业务架构：用户到 React 页面、FastAPI 认证接口、业务能力、PostgreSQL 与外部服务">
+          <div class="architecture">
+            <div class="layer"><div class="layer-title"><b>01</b> 业务用户</div><div class="node"><strong>管理员</strong><small>用户与知识库管理、任务处理、评测</small></div><div class="node"><strong>知识库成员</strong><small>文档上传、审核与检索范围</small></div><div class="node"><strong>问答用户</strong><small>Agent 对话、引用查阅、反馈</small></div></div>
+            <div class="bridge" aria-hidden="true"><span>→</span></div>
+            <div class="layer"><div class="layer-title"><b>02</b> 交互入口</div><div class="node primary"><strong>React + TypeScript 页面</strong><small>用户名密码登录；总览、知识库、文档、Agent 聊天与评测界面</small></div><div class="node primary"><strong>FastAPI + JWT</strong><small>REST / SSE；租户、知识库成员关系与文档 ACL 校验</small></div></div>
+            <div class="bridge" aria-hidden="true"><span>→</span></div>
+            <div class="layer"><div class="layer-title"><b>03</b> 业务能力</div><div class="node"><strong>身份与权限</strong><small>登录鉴权、租户隔离、访问范围判定</small></div><div class="node"><strong>知识库与文档</strong><small>知识库、版本、上传、任务及状态管理</small></div><div class="node"><strong>导入与发布</strong><small>持久任务 + LangGraph；解析、切块、质量门禁与版本切换</small></div><div class="node"><strong>Agent 问答与评测</strong><small>多路召回、证据校验、引用回答、反馈和评测</small></div></div>
+            <div class="bridge" aria-hidden="true"><span>↔</span></div>
+            <div class="layer"><div class="layer-title"><b>04</b> 权威数据与状态</div><div class="node db"><strong>PostgreSQL · 唯一业务事实源</strong><small>租户隔离的业务数据；工作流检查点只保留标识和阶段，内容仍以业务表为准</small><div class="db-grid"><span>原件 / 归一化 PDF</span><span>解析块 / 资产</span><span>Chunk / 版本</span><span>任务 / Outbox</span><span>会话 / 消息</span><span>引用 / SSE 事件</span><span>评测 / 反馈</span><span>审计 / 权限</span></div></div><div class="node"><strong>Redis · 可选</strong><small>瞬时计数、限流；不承载业务真相</small></div></div>
+            <div class="bridge" aria-hidden="true"><span>↔</span></div>
+            <div class="layer"><div class="layer-title"><b>05</b> 外部能力</div><div class="node pending"><strong>文件处理</strong><small>扫描器、LibreOffice、MinerU</small></div><div class="node pending"><strong>检索索引</strong><small>Embedding、Milvus 向量、Neo4j 证据图</small></div><div class="node pending"><strong>回答模型</strong><small>Reranker、LLM；可选 Web / MCP 连接</small></div></div>
+          </div>
+        </div>
+        <figcaption>箭头表示主要调用 / 同步方向；PostgreSQL 负责持久事实，Milvus 与 Neo4j 承担可重建的检索索引。</figcaption>
+      </figure>
+      <div class="principles"><div class="principle"><strong>先认证、再授权</strong><p>登录后才能调用 Agent；问答范围受租户、知识库成员关系和文档 ACL 限制。</p></div><div class="principle"><strong>版本发布有门禁</strong><p>质量、Chunk 非空及外部索引回执齐备，才原子切换当前版本。</p></div><div class="principle"><strong>答案需要证据</strong><p>检索、重排与证据校验后生成回答，再核验引用。</p></div><div class="principle"><strong>任务状态可恢复</strong><p>导入、查询运行、事件与检查点持久化，支持重试或 SSE 续传。</p></div></div>
+    </section>
+
+    <section id="ingestion" aria-labelledby="ingestion-title">
+      <div class="section-head"><span class="index">02</span><div><h2 id="ingestion-title">数据流程图 A · 文档入库与发布</h2><p>一份文档从上传到成为可检索的当前版本，必须经过安全检查、解析质量判断及双索引同步。</p></div></div>
+      <figure class="flow-shell" style="margin:0"><div class="flow-scroll"><ol class="flow-list">
+        <li><span class="step">01</span><strong>用户上传</strong><small>JWT 与知识库权限校验；创建文档版本和持久任务。</small></li>
+        <li><span class="step">02</span><strong>保存原件</strong><small>验证类型、签名和大小；原文件与元数据写入 PostgreSQL。</small></li>
+        <li class="external"><span class="step">03</span><strong>扫描与归一化</strong><small>扫描器检查；Office 等格式经 LibreOffice 转为 PDF。</small></li>
+        <li class="external"><span class="step">04</span><strong>解析与质量门禁</strong><small>MinerU 解析页面、文本、表格与资产；低质量进入处理状态。</small></li>
+        <li><span class="step">05</span><strong>结构化切块</strong><small>保留页码、章节、表格及来源标识；Chunk 写入 PostgreSQL。</small></li>
+        <li class="external"><span class="step">06</span><strong>构建检索索引</strong><small>Embedding → Milvus；实体 / 引用关系 → Neo4j；记录同步回执。</small></li>
+        <li><span class="step">07</span><strong>原子发布</strong><small>Chunk 非空且质量与索引回执均通过后，切换 current_version_id。</small></li>
+      </ol></div><figcaption class="flow-note"><strong>失败边界：</strong>外部依赖不可用或门禁未通过时，任务保留可追踪状态；不把未完成版本发布为当前版本。</figcaption></figure>
+    </section>
+
+    <section id="query" aria-labelledby="query-title">
+      <div class="section-head"><span class="index">03</span><div><h2 id="query-title">数据流程图 B · Agent 问答与引用</h2><p>问题先落库并限定权限范围，再进行多路召回和证据判断；最终回答、引用及事件进入同一持久化链路。</p></div></div>
+      <figure class="flow-shell" style="margin:0"><div class="flow-scroll"><ol class="flow-list">
+        <li><span class="step">01</span><strong>登录后提问</strong><small>React 发送问题；FastAPI 验证 JWT、租户及知识库访问权限。</small></li>
+        <li><span class="step">02</span><strong>创建 QueryRun</strong><small>用户消息和运行状态写入 PostgreSQL；确定可见文档范围。</small></li>
+        <li class="external"><span class="step">03</span><strong>三路召回</strong><small>PostgreSQL 关键词、Milvus 向量、Neo4j 图谱并行检索。</small></li>
+        <li class="external"><span class="step">04</span><strong>融合与证据筛选</strong><small>RRF 融合、重排、构建上下文；证据不足时不编造答案。</small></li>
+        <li class="external"><span class="step">05</span><strong>生成与核验</strong><small>LLM 生成答案；检查引用是否指向允许访问的证据。</small></li>
+        <li><span class="step">06</span><strong>持久化结果</strong><small>答案、引用、运行结果与 SSE 事件原子写入 PostgreSQL。</small></li>
+        <li><span class="step">07</span><strong>流式呈现</strong><small>React 接收 SSE；断线可用 Last-Event-ID 续传，用户可反馈。</small></li>
+      </ol></div><figcaption class="flow-note"><strong>权限与可靠性：</strong>每条检索路径均受授权范围约束；最终可见答案以 PostgreSQL 中的提交结果和事件为准。</figcaption></figure>
+    </section>
+
+    <section id="boundary" aria-labelledby="boundary-title">
+      <div class="section-head"><span class="index">04</span><div><h2 id="boundary-title">实施边界与资料依据</h2><p>此页区分仓库中已完成的实现与真实服务联调结果，避免把预留的适配器误认为已经上线。</p></div></div>
+      <div class="boundary"><div class="boundary-card"><h3>外部服务现状</h3><p>按当前项目实施记录，MinerU、Milvus、Neo4j、Embedding、Reranker 和 LLM 尚未部署；扫描器与 Office 转换也需按环境配置。因此完整的真实文档入库及 Agent 生成问答仍待端到端验收。</p><ul><li>本地可以验证页面、接口、PostgreSQL 持久化、权限与模拟适配器路径。</li><li>图中的虚线节点表示已规划或已有接口，但当前环境不应视为真实服务可用。</li></ul></div><div class="source-card"><h3>仓库内依据</h3><a href="architecture.md">docs/architecture.md · 总体架构</a><a href="ingestion_pipeline.md">docs/ingestion_pipeline.md · 文档入库</a><a href="query_pipeline.md">docs/query_pipeline.md · 查询链路</a><a href="implementation_status.md">docs/implementation_status.md · 实施状态</a></div></div>
+    </section>
+  </main>
+  <footer><div class="wrap">掌柜智库 · 基于当前代码与文档绘制 · 2026-10-10</div></footer>
+</body>
+</html>

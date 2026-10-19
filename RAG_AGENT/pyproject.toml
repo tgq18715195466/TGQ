@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "zhanggui-knowledge"
+version = "0.1.0"
+description = "PostgreSQL-backed enterprise knowledge and evidence service"
+requires-python = ">=3.12,<3.14"
+dependencies = [
+  "fastapi>=0.115,<1", "uvicorn>=0.30,<1", "pydantic-settings>=2.7,<3",
+  "SQLAlchemy>=2.0.36,<2.1", "alembic>=1.14,<2", "psycopg[binary,pool]>=3.2,<4",
+  "httpx>=0.28,<1", "python-multipart>=0.0.20", "PyJWT>=2.10,<3",
+  "langgraph>=1.0,<2", "langgraph-checkpoint-postgres>=3,<4",
+  "redis>=5,<7", "neo4j>=5.27,<7", "pymilvus>=2.5,<3",
+  "pypdf>=6,<7", "Pillow>=11,<13", "reportlab>=4,<5", "bleach>=6,<7",
+  "jieba>=0.42,<1", "beautifulsoup4>=4.12,<5", "tiktoken>=0.9,<1"
+]
+
+[project.optional-dependencies]
+test = ["pytest>=8,<10", "pytest-asyncio>=0.25,<2", "ruff>=0.11,<1"]
+eval = ["ragas>=0.3,<0.5", "datasets>=3,<5", "langchain-openai>=0.3,<2"]
+
+[tool.setuptools.packages.find]
+include = ["app*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
+asyncio_mode = "auto"
+markers = ["integration: requires real configured services", "acceptance: end-to-end acceptance"]
+
+[tool.ruff]
+line-length = 110
+target-version = "py312"

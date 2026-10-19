@@ -1,0 +1,167 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>掌柜智库｜功能与技术架构</title><style>
+:root{--ink:#18343d;--muted:#5c7078;--line:#d9e3e7;--accent:#087469}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#f5f7f8;color:var(--ink);font:16px/1.85 system-ui,'Microsoft YaHei',sans-serif}aside{position:fixed;inset:0 auto 0 0;width:225px;background:white;border-right:1px solid var(--line);padding:30px 22px;overflow:auto}aside strong{font-size:22px}aside small{display:block;color:var(--muted);margin-bottom:25px}nav a{display:block;padding:5px 0;font-size:14px;text-decoration:none;color:var(--accent)}main{margin-left:225px;max-width:1250px;padding:45px 6% 70px}header{padding-bottom:30px}.eyebrow{font-size:12px;letter-spacing:.14em;color:var(--accent)}h1{font-size:40px;line-height:1.35;margin:15px 0}h2{font-size:25px;margin:0 0 16px}h3{font-size:18px;margin:20px 0 8px}section{padding:32px 0;border-top:1px solid var(--line)}p{margin:10px 0}.lead{font-size:18px;color:var(--muted)}.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.panel{background:white;padding:20px;border:1px solid var(--line);border-radius:7px}.panel h3{margin-top:0}.note{background:#e8f3ef;border-left:3px solid var(--accent);padding:15px 20px;margin:18px 0}.warn{background:#faf1e0;border-color:#987329}.meta{font-size:13px;color:var(--muted)}ul,ol{padding-left:24px}li{margin:6px 0}code{font-family:Consolas,monospace;font-size:.9em;background:#e7edf0;padding:2px 5px}pre{background:#18313b;color:#e5eff2;padding:22px;overflow:auto;border-radius:7px;font:13px/1.85 Consolas,'Microsoft YaHei',monospace}.wrap{overflow:auto}table{width:100%;border-collapse:collapse;background:white;font-size:14px}td,th{padding:12px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}th{background:#e8eff1}.stats{display:flex;gap:35px;flex-wrap:wrap;margin:22px 0}.stats b{display:block;font-size:27px}.stats span{font-size:13px;color:var(--muted)}button{padding:9px 16px;border:1px solid var(--line);background:white;border-radius:5px;cursor:pointer}a{color:var(--accent)}footer{font-size:13px;color:var(--muted);margin-top:25px}@media(max-width:850px){aside{position:static;width:auto;padding:20px}nav{display:flex;gap:5px 18px;flex-wrap:wrap}aside small{margin-bottom:10px}main{margin:0;padding:28px 6%}.grid{grid-template-columns:1fr}h1{font-size:30px}}@media print{aside,button{display:none}main{margin:0;padding:0;max-width:none}body{background:white;font-size:11pt}pre{white-space:pre-wrap;background:#eef1f2;color:#18313b;font-size:8pt}h2,h3{break-after:avoid}.panel{break-inside:avoid}section{padding:18px 0}}
+</style></head><body><aside><strong>掌柜智库</strong><small>功能清单 · 流程 · 代码地图</small><nav><a href="#overview">01 四层架构</a><a href="#ingest">02 文档导入与解析</a><a href="#retrieval">03 三路召回</a><a href="#fusion">04 RRF 融合与重排</a><a href="#agent">05 Agent 与 Worker</a><a href="#answer">06 双模式回答与 SSE</a><a href="#graph">07 知识图谱</a><a href="#storage">08 持久化与安全</a><a href="#eval">09 评测与验证</a><a href="#stack">10 技术栈</a><a href="#tree">11 项目目录</a><a href="#limits">12 能力边界</a><a href="#run">13 运行入口</a></nav></aside><main>
+<header><div class="eyebrow">PROJECT FIELD GUIDE · 2026-10-12</div><h1>掌柜智库<br>结构化文档 RAG 企业知识库</h1><p class="lead">从上传、解析和建库，到混合检索、证据生成及引用回溯。按当前代码梳理功能与业务流程，不把参考项目的能力当作本项目已实现功能。</p><p class="meta">实现快照，不是实时健康监控。下文参数以源码默认值为主；本地环境可以覆盖。历史样例验证不代表生产验收。</p><div class="stats"><div><b>2</b><span>LangGraph 业务工作流</span></div><div><b>13</b><span>导入处理阶段</span></div><div><b>3</b><span>召回通道</span></div><div><b>1024</b><span>BGE-M3 默认维度</span></div></div><button onclick="window.print()">打印 / 保存为 PDF</button></header>
+<section id="overview"><h2>01 · 四层架构</h2><div class="grid"><article class="panel"><h3>前端：交互与展示</h3><p>React + TypeScript：登录、工作台、知识库、文档、问答、引用、评测和系统状态。负责请求提交与进度展示。</p><code>web/src/</code></article><article class="panel"><h3>后端：业务与权限</h3><p>FastAPI + PostgreSQL：身份、数据范围、文件版本、持久任务、会话、事件、审计与幂等接口。</p><code>api.py / repository.py / models.py</code></article><article class="panel"><h3>Agent：工作流编排</h3><p>LangGraph + Worker：执行阶段、并行召回、状态持久化、失败重试和索引补偿。</p><code>workflows.py / worker.py / query.py</code></article><article class="panel"><h3>RAG：知识处理</h3><p>MinerU、BGE、Milvus、FTS、Neo4j 和 LLM：解析、切分、建索引、召回、融合、生成及校验。</p><code>ingestion/ / adapters/ / retrieval.py</code></article></div><p class="note">四层是职责划分，不是四个独立部署服务。API 和 Worker 分进程运行；Agent 与 RAG 代码主要由 Worker 执行。</p></section>
+<section id="ingest"><h2>02 · 文档导入与结构化解析</h2><ul><li><b>格式校验：</b>扩展名、MIME、文件签名一致性；检查 PDF、图片、Office 容器，拒绝危险结构。</li><li><b>恶意扫描：</b>scanner shim 将原始文件交给 ClamAV，未明确扫描通过则不放行。</li><li><b>文件归一化：</b>pypdf 处理 PDF；Pillow 处理图片；ReportLab 将文本转 PDF；Office 转换依赖 LibreOffice。</li><li><b>MinerU 解析：</b>调用 /file_parse，映射正文、标题、列表、表格、公式和图片相关文字，保存页码、块和资产。</li><li><b>质量门：</b>检查页数、空白内容、乱码与表格结构，输出 PASS / WARN / BLOCK；BLOCK 阻断建库。</li><li><b>结构化切分：</b>标题大纲、段落/句子边界、标题路径注入、表格行组处理及稳定 chunk ID，保留页码与来源块。</li><li><b>双索引发布：</b>向量写入 Milvus，规则抽取实体关系后同步 Neo4j；满足质量、非空 chunk 和同步完成条件才发布版本。</li></ul><h3>13 阶段业务链</h3><pre>validate_file → persist_document → normalize_file → parse_with_mineru
+→ validate_parse_quality → build_outline → create_chunks
+→ generate_embeddings → sync_milvus → extract_entities → sync_neo4j
+→ publish_version → cleanup_temp_files</pre><p>默认文件上限 50 MiB、500 页，是校验上限，不等于实测容量。切分配置虽以 token 命名，当前计数实际上采用 UTF-8 字节保守预算，并非模型真实分词器计数。</p><p class="meta">依据：app/ingestion/、app/ingest_runner.py、app/workflows.py。</p></section>
+<section id="retrieval"><h2>03 · 三路召回检索（Triple Retrieval）</h2><div class="grid"><article class="panel"><h3>向量语义检索</h3><ul><li>BGE-M3 经 TEI 生成 1024 维向量。</li><li>Milvus HNSW 索引 + COSINE 相似度。</li><li>默认 Top40，过滤租户、知识库、当前版本和 ACL。</li><li>collection 按模型与维度隔离。</li></ul></article><article class="panel"><h3>关键词检索</h3><ul><li>jieba + 应用内 Okapi BM25。</li><li>授权当前片段作为语料，计算词频、IDF 和平均长度。</li><li>BM25 排序，默认 Top30；k1=1.2，b=0.75。</li><li>每次查询扫描授权语料；旧 FTS 索引保留但不参与召回。</li></ul></article><article class="panel"><h3>知识图谱检索</h3><ul><li>Neo4j Entity / Alias 字符串匹配。</li><li>Cypher 关系路径最多 2 跳。</li><li>回溯支撑 chunk，默认 Top30。</li><li>逐边校验来源、租户、版本与权限。</li></ul></article><article class="panel"><h3>Cross-Encoder 重排</h3><ul><li>BAAI/bge-reranker-v2-m3 经 TEI HTTP 调用。</li><li>读取问题与正文，重新判断相关性。</li><li>请求分批，遇 413/429 减半重试。</li><li>模型在独立服务中驻留，不是 Python __new__ 单例。</li></ul></article></div><p class="note">Embedding 也支持自适应降批。429 表示限流或过载，不能仅凭状态码判断为 token 超限；降至单条仍失败会抛错，不保证所有输入都能恢复。</p></section>
+<section id="fusion"><h2>04 · 混合检索如何融合</h2><pre>向量 Top40 ─┐
+关键词 Top30 ├→ RRF 合并 → Top50 → PostgreSQL 回表取正文与鉴权
+图谱 Top30 ─┘
+  → reranker 精排 → 上下文筛选 → 证据门 → LLM 生成</pre><h3>第一层：RRF 按排名融合</h3><p>三路结果统一为 chunk_id 与原始分数；按 ID 去重合并，跨路累计排名贡献。同一路重复 ID 不重复计分。三路当前等权。</p><pre>RRF(d) = Σ 1 / (60 + rank_s(d))
+排名从 1 开始；该路未命中贡献 0。
+原始相似度分数用于追踪，不直接相加。</pre><div class="wrap"><table><caption>教学示例：非真实运行数据</caption><thead><tr><th>候选</th><th>向量排名</th><th>关键词排名</th><th>图谱排名</th><th>RRF</th></tr></thead><tbody><tr><td>A</td><td>1</td><td>3</td><td>未命中</td><td>1/61 + 1/63 ≈ 0.03227</td></tr><tr><td>B</td><td>2</td><td>1</td><td>2</td><td>1/62 + 1/61 + 1/62 ≈ 0.04865</td></tr><tr><td>C</td><td>未命中</td><td>未命中</td><td>1</td><td>1/61 ≈ 0.01639</td></tr></tbody></table></div><p>排序为 <b>B → A → C</b>：多路共同支持的候选得到更多贡献。RRF 分数不是正确率。</p><h3>第二层：重排重新判断相关性</h3><p>融合后先取默认前 50 个候选，再回数据库剔除无权访问或非当前版本的结果。reranker 读取正文打分并排序，当前不再将 RRF 与 rerank 分数加权相加。</p><h3>第三层：选择证据</h3><ul><li>默认最多 10 个 chunk；比较类最多 12 个；每篇文档最多 4 个。</li><li>按去空白后的正文精确去重；摘要优先不同章节，比较优先不同文档。</li><li>表格类对表格候选做 0.05 的轻量排序加分。</li><li>证据门检查所选上下文前 3 条可用分数：默认最高值 ≥0.5、均值 ≥0.375，并检查问题数字/编号覆盖。</li><li>召回一致性会记录，但不是当前 sufficient 判定的硬条件。</li><li>重排失败保留 RRF 排序，但缺少重排分数通常导致保守拒答。</li></ul><p class="meta">依据：app/retrieval.py、app/query.py、app/config.py。</p></section>
+<section id="agent"><h2>05 · Agent 编排与后台 Worker</h2><p>当前采用固定工作流，不是 Self-RAG 反思循环，也不是模型自主规划和选择工具的多智能体系统。</p><pre>授权 → 规则分类 → 问题空白规范化 → 三路并行召回
+→ 融合 → 重排 → 上下文 → 证据门 → 可选外部搜索
+→ 生成 → 引用校验 → 持久化答案与事件 → SSE读取</pre><ul><li><b>路由：</b>按关键词选择 compare / graph / table / latest / summary / fact。</li><li><b>问题改写：</b>当前仅规范化空白，不生成假设文档；HyDE 只有配置开关。</li><li><b>任务消费：</b>Worker 轮询 QueryRun、IngestJob、SyncOutbox、EvalRun，使用 advisory lock 避免重复执行。</li><li><b>阶段恢复：</b>导入从持久业务阶段恢复，可重试错误按退避策略处理。</li><li><b>一致性：</b>巡检外部索引 ID 与数据库差异，创建补偿任务。</li><li><b>取消：</b>阶段边界检查；已经发出的外部请求可能等待超时。</li><li><b>观测：</b>JobStep、timings 和 run.stage 记录状态与阶段耗时。</li></ul><p class="note">单个 Worker 逐项执行任务，问答图的三路召回内部并行。独立 API 保持响应，但长任务仍可能占用 Worker；当前没有分级任务池或通用公平调度。</p></section>
+<section id="answer"><h2>06 · 双模式回答与持久 SSE</h2><div class="grid"><article class="panel"><h3>事实类：逐字证据</h3><p>模型输出 claims 与 chunk_ids，每句须逐字存在于其引用证据中，否则拒绝输出该答案。</p></article><article class="panel"><h3>摘要 / 比较类：归纳生成</h3><p>允许组织归纳语言，检查引用来源与数字出现。不是完整语义真实性验证，不能保证因果、实体关系等都正确。</p></article></div><ul><li>通过 OpenAI-compatible /chat/completions 调用配置的单个模型端点；此前本机接入 DeepSeek。</li><li>会话历史保存在 PostgreSQL，但当前生成调用只传当前问题与所选证据。</li><li>答案、引用快照、完成状态和事件在事务内提交。</li><li>引用包含文档、版本、页码、章节、chunk 和摘录。</li><li>SSE 支持 run.started / run.stage / citation.ready / answer.delta / answer.replace / run.completed / run.failed。</li><li>使用递增 sequence 和 Last-Event-ID 重放，前端增量解析 SSE。</li></ul><p class="note warn">当前是校验后分段输出，不是原始模型 token 实时透传。每文档最多 4 个片段的限制仍适用于摘要，因此不等于全文覆盖总结。也没有三层记忆注入或自动上下文压缩。</p></section>
+<section id="graph"><h2>07 · 知识图谱</h2><ul><li><b>节点：</b>Document、Chunk、Entity、Alias。</li><li><b>关系：</b>PART_OF、MENTIONS、SUPPORTED_BY、RELATES_TO、NEXT_CHUNK。</li><li><b>抽取：</b>规则识别显式实体、别名及明确关系格式，没有通用 LLM 抽实体。</li><li><b>归并：</b>实体 ID 对知识库 ID 与小写名称做哈希，结合租户隔离；同名实体可跨文档归并。</li><li><b>类型边界：</b>ID 不是 name|type，同名不同类型不会因此自动拆分。</li><li><b>检索：</b>实体/别名字符串匹配 + Cypher 最多 2 跳扩展，返回支撑 chunk。</li><li><b>权限：</b>节点、路径关系和来源 chunk 均受范围、版本与 ACL 约束。</li></ul><p>没有 NetworkX、vis-network 图谱页面、top-200 渐进披露或邻接展开接口。关系链未作为独立材料直接注入回答，图谱主要辅助召回证据。</p></section>
+<section id="storage"><h2>08 · 持久化与安全</h2><ul><li><b>唯一业务事实源：</b>PostgreSQL 保存文件 Blob、解析结构、正文、任务、消息、引用、事件、评测和审计。</li><li><b>认证：</b>PBKDF2-SHA256 加盐密码哈希 + JWT，校验有效用户与 KB membership。</li><li><b>隔离：</b>显式租户过滤、RLS、复合外键、索引 ACL、最终回表鉴权。</li><li><b>幂等：</b>关键接口 Idempotency-Key；Blob 内容哈希去重；稳定 ID upsert 外部索引。</li><li><b>发布：</b>新版本双索引同步完成后才切换 current_version_id；此前保留旧版本可查询。</li><li><b>删除：</b>通过 Outbox 补偿删除外部索引；硬删除还清理相关正文与历史答案/引用快照。</li><li><b>Redis：</b>可选短期限流，不承担持久任务队列、会话事实源或记忆系统。</li></ul></section>
+<section id="eval"><h2>09 · 评测与验证边界</h2><p>实现评测运行器、结果持久化、Badcase 标签与可选 RAGAS 接口。支持 Recall@10、MRR@10、Context Precision、引用精确率、拒答正确性、字符准确率及结构 F1 等计算。</p><p class="note warn">仓库评测集当前只有 3 条 fixture，报告标记 fixture_only=true、quality_claim_allowed=false。手工预测输入的满分不能用于宣称真实检索质量、OCR 准确率或 RAGAS 达标。</p><p>此前本机会话验证过 38 个 chunk 的降批向量化、40 候选分批重排和 132 个 chunk 文档入库。这是历史单样本记录，不代表当前服务在线，也不是总体成功率、并发或吞吐成绩。</p><p class="meta">依据：app/evaluation.py、eval/reports/latest.json、docs/evaluation.md。旧文档可能早于近期改动，功能判断优先当前代码。</p></section>
+<section id="stack"><h2>10 · 技术栈</h2><div class="wrap"><table><thead><tr><th>层 / 能力</th><th>技术</th><th>作用</th></tr></thead><tbody>
+<tr><td>前端</td><td>React 19、TypeScript 5.9、React Router 7、Vite 7</td><td>页面、路由、构建与交互</td></tr><tr><td>后端</td><td>Python ≥3.12 且 &lt;3.14、FastAPI、Uvicorn、Pydantic</td><td>接口、参数和配置</td></tr><tr><td>持久化</td><td>PostgreSQL、SQLAlchemy、psycopg、Alembic</td><td>业务、文件、任务、FTS、迁移</td></tr><tr><td>编排</td><td>LangGraph + PostgreSQL checkpoint + 自建 Worker</td><td>阶段执行、恢复与持久任务消费</td></tr><tr><td>向量库</td><td>Milvus 2.6.0（Compose）、PyMilvus</td><td>HNSW / COSINE</td></tr><tr><td>图数据库</td><td>Neo4j 5.26 Community（Compose）</td><td>实体关系与来源关联</td></tr><tr><td>Embedding</td><td>BAAI/bge-m3、TEI 1.9</td><td>1024 维向量及自适应分批</td></tr><tr><td>Reranker</td><td>BAAI/bge-reranker-v2-m3、TEI</td><td>Cross-Encoder 重排</td></tr><tr><td>解析</td><td>MinerU、pypdf、Pillow、ReportLab、LibreOffice</td><td>文件转换与结构解析</td></tr><tr><td>分词 / 预算</td><td>jieba / UTF-8 字节保守预算</td><td>中文 FTS；切分未实际使用 tiktoken 分词</td></tr><tr><td>扫描</td><td>ClamAV 1.4（Compose）+ Python shim</td><td>文件恶意内容检查</td></tr><tr><td>限流</td><td>可选 Redis、进程内登录计数</td><td>短期请求限制</td></tr><tr><td>LLM</td><td>OpenAI-compatible HTTP</td><td>单端点配置、摘录与摘要生成</td></tr><tr><td>测试评测</td><td>pytest、ruff、Vitest、Testing Library、可选 RAGAS</td><td>回归、集成与指标工具</td></tr><tr><td>部署</td><td>Docker、Compose、PowerShell、GitHub Actions 配置</td><td>本机启动、依赖及 CI 定义</td></tr></tbody></table></div><p class="meta">版本来自依赖声明或 Compose 定义，不表示本次重新验证了所有服务运行版本。</p></section>
+<section id="tree"><h2>11 · 当前项目目录与职责</h2><p>省略 __init__.py、依赖包和缓存。目录依据实际文件列表，不虚构独立的 skills、memory 或 self-rag 模块。</p><pre>
+RAG_AGENT/
+├── app/                               # 后端 + Agent 编排 + RAG
+│   ├── api.py                         # REST、SSE、SPA 静态挂载
+│   ├── config.py                      # 配置与检索参数
+│   ├── db.py                          # 连接、事务、租户上下文
+│   ├── database_target.py             # 数据库目标保护
+│   ├── models.py                      # 业务 ORM
+│   ├── repository.py                  # 授权、幂等、Blob、发布门
+│   ├── security.py                    # JWT 校验
+│   ├── password_auth.py               # 密码、凭据、登录限流
+│   ├── temporary.py                   # Redis 短期计数
+│   ├── worker.py                      # 导入/问答/评测/Outbox/巡检
+│   ├── workflows.py                   # 导入图与 checkpoint
+│   ├── ingest_runner.py               # 13 阶段执行与落库
+│   ├── query.py                       # 问答图、召回、生成与提交
+│   ├── keyword.py                     # jieba 分词与授权语料 BM25 评分
+│   ├── retrieval.py                   # 分类、RRF、上下文与校验
+│   ├── sync.py                        # 索引同步、删除补偿、一致性
+│   ├── evaluation.py                  # 评测执行、指标与 RAGAS 接口
+│   ├── ingestion/
+│   │   ├── contracts.py               # 文件/块/chunk/质量数据契约
+│   │   ├── files.py                   # 格式检查、扫描与归一化
+│   │   ├── mineru.py                  # MinerU 适配与质量门
+│   │   └── chunking.py                # 大纲、标题注入、表格切分
+│   └── adapters/
+│       ├── services.py                # 外部能力统一封装
+│       ├── models.py                  # 模型分批、双模式生成、规则图抽取
+│       └── stores.py                  # Milvus / Neo4j 读写与过滤
+├── web/                               # React + TypeScript
+│   ├── src/
+│   │   ├── main.tsx                   # 应用启动
+│   │   ├── App.tsx                    # 布局与路由
+│   │   ├── workspace.tsx              # 登录、令牌、工作空间
+│   │   ├── api.ts                     # Fetch、鉴权、幂等、下载
+│   │   ├── sse.ts                     # SSE 增量解析与事件 ID
+│   │   ├── types.ts                   # 数据类型
+│   │   ├── components.tsx             # 公共组件
+│   │   ├── test-setup.ts              # 测试初始化
+│   │   ├── *.test.ts / *.test.tsx     # 客户端与组件测试
+│   │   └── pages/
+│   │       ├── Overview.tsx           # 工作台
+│   │       ├── Knowledge.tsx          # 知识库
+│   │       ├── Documents.tsx          # 文档、任务与内容
+│   │       ├── Chat.tsx               # 问答、历史、引用、反馈
+│   │       ├── Evaluation.tsx         # 评测任务及结果
+│   │       ├── Settings.tsx           # 系统状态
+│   │       └── *.test.tsx             # 页面测试
+│   ├── dist/                          # 生产构建产物
+│   ├── styles.css                     # 全局样式
+│   ├── index.html                     # HTML 入口
+│   ├── vite.config.ts                 # 构建、代理与测试
+│   ├── tsconfig.json                  # TS 配置
+│   ├── package.json                   # 依赖与脚本
+│   └── package-lock.json              # 依赖锁定
+├── alembic/
+│   ├── env.py                         # 迁移执行环境
+│   ├── schema_v1.py                   # 初始结构冻结快照
+│   ├── script.py.mako                 # 迁移模板
+│   └── versions/
+│       ├── 0001_initial.py            # 业务表、RLS、FTS
+│       └── 0002_login_credentials.py  # 登录凭据表
+├── deploy/
+│   ├── init-db.sh                     # 数据库初始化
+│   ├── milvus.yaml                    # Milvus 配置
+│   ├── embedEtcd.yaml                 # 内嵌 etcd 配置
+│   └── scanner-shim/
+│       ├── scanner_shim.py            # HTTP → ClamAV INSTREAM
+│       └── Dockerfile                 # 扫描代理镜像
+├── scripts/
+│   ├── start_local.ps1                # 构建、迁移、登录、API、页面
+│   ├── start_mineru.ps1               # MinerU 启动
+│   ├── bootstrap_local.py             # 本地数据库初始化
+│   ├── setup_checkpoints.py           # checkpoint 表与策略
+│   ├── setup_local_login.py           # 账号初始化/重置
+│   ├── open_workspace.py              # 打开工作台
+│   ├── manage.py                      # 数据初始化、评测导入 CLI
+│   ├── migrate_legacy.py              # 旧数据迁移与 dry-run
+│   ├── run_local_tests.py             # 本地测试入口
+│   ├── smoke_local.py                 # 冒烟验证
+│   ├── check_forbidden.py             # 禁止依赖检查
+│   ├── generate_corpus.py             # 合成测试语料
+│   └── benchmark.py                   # 压测和耗时统计
+├── tests/
+│   ├── test_api.py / test_login.py     # API、认证
+│   ├── test_database_target.py        # 数据库保护
+│   ├── test_erp_database_target_local.py # 外部 ERP 联动检查
+│   ├── test_ingestion.py              # 校验、解析、切分
+│   ├── test_adapters.py               # 模型、分批、存储适配
+│   ├── test_retrieval.py              # 融合、证据、引用
+│   ├── test_workflows.py              # 编排
+│   ├── test_pipeline.py               # PostgreSQL + 外部服务替身
+│   ├── test_external_services.py      # 可选真实外部集成
+│   ├── test_postgres.py               # PostgreSQL 行为
+│   ├── test_storage.py                # 持久化
+│   ├── test_regressions.py            # 安全与一致性回归
+│   ├── test_evaluation.py             # 指标计算
+│   ├── test_migration_tool.py          # 迁移工具
+│   └── test_forbidden.py              # 禁止依赖
+├── eval/
+│   ├── run_eval.py                    # 离线指标入口
+│   ├── datasets/knowledge_qa_v1.jsonl # 3 条示例 fixture
+│   ├── expected/fixture_predictions.jsonl # 手工预测输入
+│   ├── reports/latest.json            # 明确区分 fixture 报告
+│   └── README.md
+├── docs/
+│   ├── architecture.md               # 架构
+│   ├── data_model.md                 # 数据模型
+│   ├── ingestion_pipeline.md         # 导入流程
+│   ├── query_pipeline.md             # 问答流程
+│   ├── evaluation.md                 # 评测说明
+│   ├── operations.md                 # 运维恢复
+│   ├── local_dependencies.md         # 本地依赖部署
+│   ├── migration_guide.md            # 数据迁移
+│   ├── implementation_status.md      # 历史实施状态
+│   ├── verification.md               # 历史验证记录
+│   ├── business_architecture_and_data_flow.html
+│   ├── project_chain_healthcheck.html # 历史体检报告
+│   ├── project_feature_architecture.html # 本文件
+│   └── ...                           # 前端、登录与实施计划
+├── .runtime/                         # 日志、PID、模型与运行数据
+├── .github/workflows/tests.yml       # CI 测试定义
+├── .env / .env.example               # 私密配置 / 模板
+├── .gitignore / .dockerignore        # 忽略规则
+├── Dockerfile                       # 前端构建 + Python 镜像
+├── compose.yaml                     # 完整部署定义
+├── compose.dependencies.yaml        # 本机索引、TEI、扫描服务
+├── alembic.ini                      # 迁移配置
+├── pyproject.toml                   # Python 依赖与工具设置
+├── requirements.lock                # 依赖锁定
+└── README.md
+</pre></section>
+<section id="limits"><h2>12 · 未实现能力与参考项目差异</h2><div class="wrap"><table><thead><tr><th>参考功能</th><th>当前项目</th></tr></thead><tbody><tr><td>Self-RAG 反思循环</td><td>未实现；固定流程 + 一次证据门，没有反思改写后循环检索。</td></tr><tr><td>三层记忆 / 200k 自动压缩</td><td>未实现；会话持久化不等于历史注入，无中长期记忆与压缩审计。</td></tr><tr><td>SKILL.md 技能系统</td><td>业务应用无扫描、CRUD 或渐进注入；开发工具的技能不属于业务能力。</td></tr><tr><td>LLM 抽实体、模糊匹配、3 跳 BFS</td><td>规则抽取 + 字符串匹配 + Neo4j 最多 2 跳路径。</td></tr><tr><td>BM25、加权 RRF、HyDE</td><td>jieba + BM25、等权 RRF；HyDE 未接入执行。</td></tr><tr><td>四家独立模型 provider</td><td>单个 OpenAI-compatible 端点，无在线多模型配置管理 UI。</td></tr><tr><td>MCP 网络问答</td><td>双开关受控调用，外部结果尚未整合进可验证答案。</td></tr><tr><td>完整视觉多模态</td><td>多格式解析到文本及结构，不承诺图片语义或曲线趋势理解。</td></tr><tr><td>生产质量与规模达标</td><td>需人工标注、基线对比、并发压测与恢复演练，不能由样例推断。</td></tr></tbody></table></div></section>
+<section id="run"><h2>13 · 本机运行入口</h2><p>用于已有本地配置的环境；新环境仍需准备数据库、账号、模型文件与 checkpoint。本页不会执行命令。</p><pre># 项目根目录；依赖已配置
+ docker compose -f compose.dependencies.yaml up -d
+ powershell -ExecutionPolicy Bypass -File scripts/start_mineru.ps1
+ powershell -ExecutionPolicy Bypass -File scripts/start_local.ps1
+
+# Worker 独立运行
+ $demo = Get-Content .runtime/demo.json | ConvertFrom-Json
+ .\.venv\Scripts\python.exe -m app.worker --tenant $demo.tenant_id</pre><p>工作台：<a href="http://127.0.0.1:8000/">http://127.0.0.1:8000/</a> · API：<a href="http://127.0.0.1:8000/docs">/docs</a> · 数据库就绪：<a href="http://127.0.0.1:8000/health/ready">/health/ready</a></p><p class="note">start_local.ps1 不统一启动全部依赖和 Worker，且可能复用已运行的 API。数据库健康检查成功不代表所有模型、索引和 Worker 正常。容器与本机的服务地址需分别配置。</p></section>
+<footer>来源：当前项目源码、依赖及部署配置 · 2026-10-12 · 自包含 HTML，无远程脚本、字体、图片或样式依赖；未包含密码、API Key 或私密文档正文。</footer></main></body></html>

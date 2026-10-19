@@ -1,0 +1,3 @@
+{"id":"fixture_fact_001","answer":"合同 A-001 金额为100元。","retrieved_chunk_ids":["fixture-contract-v1"],"cited_chunk_ids":["fixture-contract-v1"],"citation_coverage":1.0,"refused":false,"status":"COMPLETED"}
+{"id":"fixture_table_001","answer":"产品甲单价20元。","retrieved_chunk_ids":["fixture-table-v1"],"cited_chunk_ids":["fixture-table-v1"],"citation_coverage":1.0,"refused":false,"status":"COMPLETED"}
+{"id":"fixture_none_001","answer":"资料不足，无法确定。","retrieved_chunk_ids":[],"cited_chunk_ids":[],"refused":true,"status":"COMPLETED"}
